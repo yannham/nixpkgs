@@ -1,10 +1,30 @@
 final: prev:
 let
   inherit (prev) lib pkgs;
+  # cudaVersionOlder : Version -> Boolean
   cudaVersionOlder = lib.versionOlder final.cudaVersion;
+  # cudaVersionAtLeast : Version -> Boolean
   cudaVersionAtLeast = lib.versionAtLeast final.cudaVersion;
+  # cudaVersionAtMost : Version -> Boolean
+  cudaVersionAtMost = flip versionAtLeast cudaVersion;
+  # cudaVersionBounded : Version -> Version -> Boolean
+  # NOTE: This is inclusive on both ends.
+  cudaVersionBounded = min: max: cudaVersionAtLeast min && cudaVersionAtMost max;
+
+  inherit (builtins) hasAttr;
+  inherit (final) cudaVersion addBuildInputs addAutoPatchelfIgnoreMissingDeps;
+  inherit (prev.lib.attrsets) filterAttrs optionalAttrs;
+  inherit (prev.lib.lists) optionals;
+  inherit (prev.lib.strings) versionAtLeast;
+  inherit (prev.lib.trivial) flip pipe;
+  inherit (prev.pkgs.stdenv.hostPlatform) isx86_64 isAarch64 isPower64;
+  inherit
+    (prev.pkgs)
+    pkgsBuildHost# for nativeBuildInputs
+    pkgsHostTarget# good ol' pkgs, for buildInputs
+    ;
 in
-(lib.filterAttrs (attr: _: (prev ? "${attr}")) {
+filterAttrs (attr: _: (hasAttr attr prev)) {
   ### Overrides to fix the components of cudatoolkit-redist
 
   # Attributes that don't exist in the previous set are removed.
@@ -18,7 +38,7 @@ in
     ];
     # libcuda needs to be resolved during runtime
     autoPatchelfIgnoreMissingDeps =
-      ["libcuda.so.1"]
+      [ "libcuda.so.1" ]
       # Before 12.0 libcufile depends on itself for some reason.
       ++ lib.optionals (cudaVersionOlder "12.0") [
         "libcufile.so.0"
@@ -27,7 +47,7 @@ in
 
   libcusolver = final.addBuildInputs prev.libcusolver (
     # Always depends on this
-    [final.libcublas.lib]
+    [ final.libcublas.lib ]
     # Dependency from 12.0 and on
     ++ lib.optionals (cudaVersionAtLeast "12.0") [
       final.libnvjitlink.lib
@@ -88,7 +108,7 @@ in
     nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [ pkgs.addOpenGLRunpath ];
     buildInputs = oldAttrs.buildInputs ++ [ final.cuda_cupti.lib ];
     # libcuda needs to be resolved during runtime
-    autoPatchelfIgnoreMissingDeps = ["libcuda.so.1"];
+    autoPatchelfIgnoreMissingDeps = [ "libcuda.so.1" ];
   });
 
   cuda_demo_suite = final.addBuildInputs prev.cuda_demo_suite [
@@ -100,43 +120,28 @@ in
     final.libcurand.lib
   ];
 
-  nsight_compute = prev.nsight_compute.overrideAttrs (oldAttrs: {
-    nativeBuildInputs = oldAttrs.nativeBuildInputs
-    ++ (if (lib.versionOlder prev.nsight_compute.version "2022.2.0")
-       then [ pkgs.qt5.wrapQtAppsHook ]
-       else [ pkgs.qt6.wrapQtAppsHook ]);
-    buildInputs = oldAttrs.buildInputs
-    ++ (if (lib.versionOlder prev.nsight_compute.version "2022.2.0")
-       then [ pkgs.qt5.qtwebview ]
-       else [ pkgs.qt6.qtwebview ]);
-  });
-
-  nsight_systems = prev.nsight_systems.overrideAttrs (oldAttrs: {
-    nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [
-      pkgs.addOpenGLRunpath
-      pkgs.qt5.wrapQtAppsHook
-    ];
-    buildInputs = oldAttrs.buildInputs ++ [
-      pkgs.alsa-lib
-      pkgs.e2fsprogs
-      pkgs.nss
-      pkgs.numactl
-      pkgs.pulseaudio
-      pkgs.wayland
-      pkgs.xorg.libXcursor
-      pkgs.xorg.libXdamage
-      pkgs.xorg.libXrandr
-      pkgs.xorg.libXtst
-    ];
-    # libcuda needs to be resolved during runtime
-    autoPatchelfIgnoreMissingDeps = true;
-  });
+  # nsight_compute = prev.nsight_compute.overrideAttrs (oldAttrs: {
+  #   nativeBuildInputs =
+  #     oldAttrs.nativeBuildInputs
+  #     ++ (
+  #       if (versionOlder prev.nsight_compute.version "2022.2.0")
+  #       then [pkgs.qt5.wrapQtAppsHook]
+  #       else [pkgs.qt6.wrapQtAppsHook]
+  #     );
+  #   buildInputs =
+  #     oldAttrs.buildInputs
+  #     ++ (
+  #       if (versionOlder prev.nsight_compute.version "2022.2.0")
+  #       then [pkgs.qt5.qtwebview]
+  #       else [pkgs.qt6.qtwebview]
+  #     );
+  # });
 
   nvidia_driver = prev.nvidia_driver.overrideAttrs (oldAttrs: {
     # libcuda needs to be resolved during runtime
-    autoPatchelfIgnoreMissingDeps = ["libcuda.so.1"];
+    autoPatchelfIgnoreMissingDeps = [ "libcuda.so.1" ];
     # No need to support this package as we have drivers already
     # in linuxPackages.
     meta.broken = true;
   });
-})
+}
