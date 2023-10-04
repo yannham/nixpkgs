@@ -1,0 +1,284 @@
+{
+  "libcutensor": {
+    "linux-ppc64le": {
+      "cudaArchitectures": {
+        "10.2": [
+          "sm_30",
+          "sm_60",
+          "sm_70",
+          "sm_75"
+        ],
+        "11": [
+          "sm_52",
+          "sm_60",
+          "sm_70",
+          "sm_75",
+          "sm_80"
+        ],
+        "11.0": [
+          "sm_52",
+          "sm_60",
+          "sm_70",
+          "sm_75",
+          "sm_80"
+        ]
+      },
+      "dependencies": {
+        "10.2": [
+          "libcutensor"
+        ],
+        "11": [
+          "libcutensor"
+        ],
+        "11.0": [
+          "libcutensor"
+        ]
+      },
+      "neededLibs": {
+        "10.2": [
+          "ld64.so.2",
+          "libc.so.6",
+          "libcudart.so.10.2",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libm.so.6",
+          "libpthread.so.0",
+          "librt.so.1"
+        ],
+        "11": [
+          "ld64.so.2",
+          "libc.so.6",
+          "libcublasLt.so.11",
+          "libcudart.so.11.0",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libm.so.6",
+          "libpthread.so.0",
+          "librt.so.1"
+        ],
+        "11.0": [
+          "ld64.so.2",
+          "libc.so.6",
+          "libcublasLt.so.11",
+          "libcudart.so.11.0",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libm.so.6",
+          "libpthread.so.0",
+          "librt.so.1"
+        ]
+      },
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": {
+        "10.2": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ],
+        "11": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ],
+        "11.0": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ]
+      }
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": {
+        "11": [
+          "sm_60",
+          "sm_70",
+          "sm_75",
+          "sm_80"
+        ],
+        "11.0": [
+          "sm_60",
+          "sm_70",
+          "sm_75",
+          "sm_80"
+        ]
+      },
+      "dependencies": {
+        "11": [
+          "libcutensor"
+        ],
+        "11.0": [
+          "libcutensor"
+        ]
+      },
+      "neededLibs": {
+        "11": [
+          "ld-linux-aarch64.so.1",
+          "libc.so.6",
+          "libcublasLt.so.11",
+          "libcudart.so.11.0",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libpthread.so.0",
+          "librt.so.1"
+        ],
+        "11.0": [
+          "ld-linux-aarch64.so.1",
+          "libc.so.6",
+          "libcublasLt.so.11",
+          "libcudart.so.11.0",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libpthread.so.0",
+          "librt.so.1"
+        ]
+      },
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": {
+        "11": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ],
+        "11.0": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ]
+      }
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": {
+        "10.2": [
+          "sm_30",
+          "sm_60",
+          "sm_70",
+          "sm_75"
+        ],
+        "11": [
+          "sm_52",
+          "sm_60",
+          "sm_70",
+          "sm_75",
+          "sm_80"
+        ],
+        "11.0": [
+          "sm_52",
+          "sm_60",
+          "sm_70",
+          "sm_75",
+          "sm_80"
+        ]
+      },
+      "dependencies": {
+        "10.2": [
+          "libcutensor"
+        ],
+        "11": [
+          "libcutensor"
+        ],
+        "11.0": [
+          "libcutensor"
+        ]
+      },
+      "neededLibs": {
+        "10.2": [
+          "ld-linux-x86-64.so.2",
+          "libc.so.6",
+          "libcudart.so.10.2",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libm.so.6",
+          "libpthread.so.0",
+          "librt.so.1"
+        ],
+        "11": [
+          "ld-linux-x86-64.so.2",
+          "libc.so.6",
+          "libcublasLt.so.11",
+          "libcudart.so.11.0",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libm.so.6",
+          "libpthread.so.0",
+          "librt.so.1"
+        ],
+        "11.0": [
+          "ld-linux-x86-64.so.2",
+          "libc.so.6",
+          "libcublasLt.so.11",
+          "libcudart.so.11.0",
+          "libcutensor.so.1",
+          "libdl.so.2",
+          "libgcc_s.so.1",
+          "libm.so.6",
+          "libpthread.so.0",
+          "librt.so.1"
+        ]
+      },
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": {
+        "10.2": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ],
+        "11": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ],
+        "11.0": [
+          "libcutensor.so.1",
+          "libcutensorMg.so.1"
+        ]
+      }
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": {
+        "10.2": [],
+        "11": [],
+        "11.0": []
+      },
+      "dependencies": {},
+      "neededLibs": {
+        "10.2": [],
+        "11": [],
+        "11.0": []
+      },
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": {
+        "10.2": [],
+        "11": [],
+        "11.0": []
+      }
+    }
+  }
+}
