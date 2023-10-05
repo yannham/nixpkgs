@@ -3,7 +3,7 @@
 , cmake
 , cuda_cccl
 , cuda_cudart
-, cudaFlags
+, flags
 , cuda_nvcc
 , lib
 , libcublas
@@ -38,7 +38,7 @@ backendStdenv.mkDerivation {
 
   cmakeFlags = [
     "-DCMAKE_VERBOSE_MAKEFILE=ON"
-    "-DCMAKE_CUDA_ARCHITECTURES=${with cudaFlags; builtins.concatStringsSep ";" (map dropDot cudaCapabilities)}"
+    "-DCMAKE_CUDA_ARCHITECTURES=${with flags; builtins.concatStringsSep ";" (map dropDot cudaCapabilities)}"
   ];
 
   meta = {
