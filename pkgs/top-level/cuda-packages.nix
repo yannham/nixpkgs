@@ -1,24 +1,20 @@
-{ config
-, cudaVersion
+{ cudaVersion
 , lib
-, hostPlatform
 , pkgs
 , newScope
 }:
 
 let
   inherit (lib) customisation fixedPoints versions;
-  gpus = builtins.import ../development/cuda-modules/gpus.nix;
-  nvccCompatibilities = builtins.import ../development/cuda-modules/nvccCompatibilities.nix;
-  flags = builtins.import ../development/cuda-modules/flags.nix {
-    inherit hostPlatform lib cudaVersion gpus;
-    cudaCapabilities = config.cudaCapabilities or [];
-    cudaForwardCompat = config.cudaForwardCompat or true;
-  };
 
   scope = customisation.makeScope newScope (final: {
     # Entries necessary to build the finalized cudaPackages package set.
-    inherit cudaVersion lib pkgs gpus flags nvccCompatibilities;
+    inherit cudaVersion lib pkgs;
+
+    gpus = builtins.import ../development/cuda-modules/gpus.nix;
+    nvccCompatibilities = builtins.import ../development/cuda-modules/nvccCompatibilities.nix;
+
+    flags = final.callPackage ../development/cuda-modules/flags.nix {};
     
     # Exposed as cudaPackages.backendStdenv.
     # This is what nvcc uses as a backend,
@@ -46,7 +42,7 @@ let
 
     # Here we put package set configuration and utility functions.
     cudaMajorVersion = versions.major final.cudaVersion;
-    cudaMajorMinorVersion = lib.versions.majorMinor final.cudaVersion;
+    cudaMajorMinorVersion = versions.majorMinor final.cudaVersion;
     addBuildInputs = drv: buildInputs: drv.overrideAttrs (oldAttrs: {
       buildInputs = (oldAttrs.buildInputs or [ ]) ++ buildInputs;
     });
