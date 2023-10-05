@@ -1,8 +1,9 @@
 # Type aliases
 # Gpu :: AttrSet
 #   - See the documentation in ./gpus.nix.
-{ cudaCapabilities
-, cudaForwardCompat
+{ config
+, cudaCapabilities ? (config.cudaCapabilities or [])
+, cudaForwardCompat ? (config.cudaForwardCompat or true)
 , lib
 , cudaVersion
 , hostPlatform
