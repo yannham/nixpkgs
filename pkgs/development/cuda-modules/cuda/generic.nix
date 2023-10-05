@@ -7,7 +7,9 @@
   lib,
   lndir,
   markForCudatoolkitRootHook,
+  flags,
   stdenv,
+  hostPlatform,
   # Function arguments
   # Short package name (e.g., "cuda_cccl")
   # pname : String
@@ -15,19 +17,19 @@
   # Long package name (e.g., "CXX Core Compute Libraries")
   # description : String
   description,
-  # platforms : List System
-  platforms,
   # version : Version
   version,
-  # See ./modules/redistrib_manifest/package.nix
-  redistrib_package,
-  # See ./modules/feature_manifest/package.nix
-  feature_package,
+  # See ./modules/redistrib_manifest/release.nix
+  redistribRelease,
+  # See ./modules/feature_manifest/release.nix
+  featureRelease,
 }: let
-  # Useful imports
-  inherit (lib.lists) optionals;
-  inherit (lib.meta) getExe;
-  inherit (lib.strings) optionalString;
+  inherit (lib) attrsets lists meta strings licenses teams;
+
+  # Get the redist architectures for which package provides distributables.
+  # These are used by meta.platforms.
+  supportedRedistArchs = builtins.attrNames featureRelease;
+  redistArch = flags.getRedistArch hostPlatform.system;
 in
   backendStdenv.mkDerivation {
     # NOTE: Even though there's no actual buildPhase going on here, the derivations of the
@@ -37,18 +39,27 @@ in
     inherit pname version;
     strictDeps = true;
 
-    outputs = with feature_package.outputs;
+    # NOTE: Outputs are evaluated jointly with meta, so in the case that this is an unsupported platform,
+    # we still need to provide a list of outputs.
+    outputs = let
+      hasBin = attrsets.attrByPath [redistArch "outputs" "hasBin"] false featureRelease;
+      hasLib = attrsets.attrByPath [redistArch "outputs" "hasLib"] false featureRelease;
+      hasStatic = attrsets.attrByPath [redistArch "outputs" "hasStatic"] false featureRelease;
+      hasDev = attrsets.attrByPath [redistArch "outputs" "hasDev"] false featureRelease;
+      hasDoc = attrsets.attrByPath [redistArch "outputs" "hasDoc"] false featureRelease;
+      hasSample = attrsets.attrByPath [redistArch "outputs" "hasSample"] false featureRelease;
+    in
       ["out"]
-      ++ optionals hasBin ["bin"]
-      ++ optionals hasLib ["lib"]
-      ++ optionals hasStatic ["static"]
-      ++ optionals hasDev ["dev"]
-      ++ optionals hasDoc ["doc"]
-      ++ optionals hasSample ["sample"];
+      ++ lists.optionals hasBin ["bin"]
+      ++ lists.optionals hasLib ["lib"]
+      ++ lists.optionals hasStatic ["static"]
+      ++ lists.optionals hasDev ["dev"]
+      ++ lists.optionals hasDoc ["doc"]
+      ++ lists.optionals hasSample ["sample"];
 
     src = fetchurl {
-      url = "https://developer.download.nvidia.com/compute/cuda/redist/${redistrib_package.relative_path}";
-      inherit (redistrib_package) sha256;
+      url = "https://developer.download.nvidia.com/compute/cuda/redist/${redistribRelease.${redistArch}.relative_path}";
+      inherit (redistribRelease.${redistArch}) sha256;
     };
 
     # We do need some other phases, like configurePhase, so the multiple-output setup hook works.
@@ -78,8 +89,15 @@ in
       "$ORIGIN"
     ];
 
-    installPhase = with feature_package.outputs;
-    # Pre-install hook
+    installPhase = let
+      hasBin = attrsets.attrByPath [redistArch "outputs" "hasBin"] false featureRelease;
+      hasLib = attrsets.attrByPath [redistArch "outputs" "hasLib"] false featureRelease;
+      hasStatic = attrsets.attrByPath [redistArch "outputs" "hasStatic"] false featureRelease;
+      hasSample = attrsets.attrByPath [redistArch "outputs" "hasSample"] false featureRelease;
+      # NOTE: We don't need to check for hasDev or hasDoc, because those outputs are handled by
+      # the multiple-outputs setup hook.
+    in
+      # Pre-install hook
       ''
         runHook preInstall
       ''
@@ -93,19 +111,19 @@ in
         mv * "$out"
       ''
       # Handle bin, which defaults to out
-      + optionalString hasBin ''
+      + strings.optionalString hasBin ''
         moveToOutput "bin" "$bin"
       ''
       # Handle lib, which defaults to out
-      + optionalString hasLib ''
+      + strings.optionalString hasLib ''
         moveToOutput "lib" "$lib"
       ''
       # Handle static libs, which isn't handled by the setup hook
-      + optionalString hasStatic ''
+      + strings.optionalString hasStatic ''
         moveToOutput "**/*.a" "$static"
       ''
       # Handle samples, which isn't handled by the setup hook
-      + optionalString hasSample ''
+      + strings.optionalString hasSample ''
         moveToOutput "samples" "$sample"
       ''
       # Post-install hook
@@ -133,7 +151,7 @@ in
         if [ "$output" = "out" ]; then
           continue
         fi
-        ${getExe lndir} "''${!output}" "$out"
+        ${meta.getExe lndir} "''${!output}" "$out"
       done
     '';
 
@@ -154,9 +172,10 @@ in
     outputSpecified = true;
 
     meta = {
-      inherit description platforms;
-      license = lib.licenses.unfree;
-      maintainers = lib.teams.cuda.members;
+      inherit description;
+      platforms = lists.map (flags.getNixSystem) supportedRedistArchs;
+      license = licenses.unfree;
+      maintainers = teams.cuda.members;
       # Force the use of the default, fat output by default (even though `dev` exists, which
       # causes Nix to prefer that output over the others if outputSpecified isn't set).
       outputsToInstall = ["out"];

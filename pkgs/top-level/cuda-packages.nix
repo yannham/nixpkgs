@@ -1,17 +1,25 @@
-{ cudaVersion
+{ config
+, cudaVersion
 , lib
+, hostPlatform
 , pkgs
+, newScope
 }:
 
 let
   inherit (lib) customisation fixedPoints versions;
+  gpus = builtins.import ../development/cuda-modules/gpus.nix;
+  nvccCompatibilities = builtins.import ../development/cuda-modules/nvccCompatibilities.nix;
+  flags = builtins.import ../development/cuda-modules/flags.nix {
+    inherit hostPlatform lib cudaVersion gpus;
+    cudaCapabilities = config.cudaCapabilities or [];
+    cudaForwardCompat = config.cudaForwardCompat or true;
+  };
 
-  scope = customisation.makeScope pkgs.newScope (final: {
+  scope = customisation.makeScope newScope (final: {
     # Entries necessary to build the finalized cudaPackages package set.
-    inherit cudaVersion lib pkgs;
-    gpus = builtins.import ../development/cuda-modules/gpus.nix;
-    nvccCompatibilities = builtins.import ../development/cuda-modules/nvccCompatibilities.nix;
-    flags = final.callPackage ../development/cuda-modules/flags.nix { };
+    inherit cudaVersion lib pkgs gpus flags nvccCompatibilities;
+    
     # Exposed as cudaPackages.backendStdenv.
     # This is what nvcc uses as a backend,
     # and it has to be an officially supported one (e.g. gcc11 for cuda11).
@@ -59,7 +67,7 @@ let
         };
       };
 
-      inherit (final) cudaMajorMinorVersion cudaMajorVersion;
+      inherit (final) cudaMajorMinorVersion;
 
       cutensor = buildCuTensorPackage rec {
         version = if cudaMajorMinorVersion == "10.1" then "1.2.2.5" else "1.5.0.3";
@@ -80,7 +88,7 @@ let
     extraPackagesExtension
     (import ../development/cuda-modules/cuda/extension.nix)
     (import ../development/cuda-modules/cuda/overrides.nix)
-    (import ../development/cuda-modules/cudnn/extension.nix)
+    # (import ../development/cuda-modules/cudnn/extension.nix)
     # (import ../development/cuda-modules/tensorrt/extension.nix)
     # (import ../test/cuda/cuda-samples/extension.nix)
     # (import ../test/cuda/cuda-library-samples/extension.nix)

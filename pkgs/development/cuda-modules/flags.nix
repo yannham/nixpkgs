@@ -1,10 +1,11 @@
 # Type aliases
 # Gpu :: AttrSet
 #   - See the documentation in ./gpus.nix.
-{ config
+{ cudaCapabilities
+, cudaForwardCompat
 , lib
 , cudaVersion
-, backendStdenv
+, hostPlatform
 , # gpus :: List Gpu
   gpus
 }:
@@ -16,13 +17,13 @@ let
   # from improved performance, reduced file size, or greater hardware support by
   # passing a configuration based on your specific GPU environment.
   #
-  # config.cudaCapabilities :: List Capability
+  # cudaCapabilities :: List Capability
   # List of hardware generations to build.
   # E.g. [ "8.0" ]
   # Currently, the last item is considered the optional forward-compatibility arch,
   # but this may change in the future.
   #
-  # config.cudaForwardCompat :: Bool
+  # cudaForwardCompat :: Bool
   # Whether to include the forward compatibility gencode (+PTX)
   # to support future GPU generations.
   # E.g. true
@@ -102,10 +103,10 @@ let
   # Find the intersection with the user-specified list of cudaCapabilities.
   # NOTE: Jetson devices are never built by default because they cannot be targeted along
   # non-Jetson devices and require an aarch64 host platform. As such, if they're present anywhere,
-  # they must be in the user-specified config.cudaCapabilities.
+  # they must be in the user-specified cudaCapabilities.
   # NOTE: We don't need to worry about mixes of Jetson and non-Jetson devices here -- there's
   # sanity-checking for all that in cudaFlags.
-  jetsonTargets = lists.intersectLists jetsonComputeCapabilities (config.cudaCapabilities or []);
+  jetsonTargets = lists.intersectLists jetsonComputeCapabilities cudaCapabilities;
 
   # dropDot :: String -> String
   dropDot = ver: builtins.replaceStrings [ "." ] [ "" ] ver;
@@ -138,19 +139,23 @@ let
       else "linux-sbsa"
     else if nixSystem == "x86_64-linux"
     then "linux-x86_64"
+    else if nixSystem == "ppc64le-linux"
+    then "linux-ppc64le"
     else if nixSystem == "x86_64-windows"
     then "windows-x86_64"
-    else trivial.throw "Unsupported Nix system ${nixSystem}";
+    else builtins.throw "Unsupported Nix system: ${nixSystem}";
 
   # Maps NVIDIA redist arch to Nix system.
   getNixSystem = redistArch:
-    if redistArch == "linux-aarch64" || redistArch == "linux-sbsa"
+    if lists.elem redistArch ["linux-aarch64" "linux-sbsa"]
     then "aarch64-linux"
     else if redistArch == "linux-x86_64"
     then "x86_64-linux"
+    else if redistArch == "linux-ppc64le"
+    then "ppc64le-linux"
     else if redistArch == "windows-x86_64"
     then "x86_64-windows"
-    else trivial.throw "Unsupported NVIDIA redist arch ${redistArch}";
+    else builtins.throw "Unsupported NVIDIA redist arch: ${redistArch}";
 
   formatCapabilities = { cudaCapabilities, enableForwardCompat ? true }: rec {
     inherit cudaCapabilities enableForwardCompat;
@@ -207,13 +212,13 @@ let
             cudaCapabilities;
         anyJetsons = lists.any (trivial.id) isJetsons;
         allJetsons = lists.all (trivial.id) isJetsons;
-        hostIsAarch64 = backendStdenv.hostPlatform.isAarch64;
+        hostIsAarch64 = hostPlatform.isAarch64;
       in
       trivial.throwIfNot
         (anyJetsons -> (allJetsons && hostIsAarch64))
         ''
           Jetson devices cannot be targeted with non-Jetson devices. Additionally, they require hostPlatform to be aarch64.
-          You requested ${builtins.toJSON cudaCapabilities} for host platform ${backendStdenv.hostPlatform.system}.
+          You requested ${builtins.toJSON cudaCapabilities} for host platform ${hostPlatform.system}.
           Exactly one of the following must be true:
           - All CUDA capabilities belong to Jetson devices (${trivial.boolToString allJetsons}) and the hostPlatform is aarch64 (${trivial.boolToString hostIsAarch64}).
           - No CUDA capabilities belong to Jetson devices (${trivial.boolToString (!anyJetsons)}).
@@ -284,7 +289,7 @@ assert let
 in
 asserts.assertMsg
   # We can't do this test unless we're targeting aarch64
-  (backendStdenv.hostPlatform.isAarch64 -> (expected == actualWrapped))
+  (hostPlatform.isAarch64 -> (expected == actualWrapped))
   ''
     Jetson devices can only be built with other Jetson devices.
     Both 6.2 and 7.2 are Jetson devices.
@@ -292,7 +297,7 @@ asserts.assertMsg
     Actual: ${builtins.toJSON actualWrapped}
   '';
 {
-  # formatCapabilities :: { cudaCapabilities: List Capability, cudaForwardCompat: Boolean } ->  { ... }
+  # formatCapabilities :: { cudaCapabilities: List Capability, enableForwardCompat: Boolean } ->  { ... }
   inherit formatCapabilities;
 
   # cudaArchNameToVersions :: String => String
@@ -306,6 +311,6 @@ asserts.assertMsg
 
   inherit gpus jetsonComputeCapabilities jetsonTargets getNixSystem getRedistArch;
 } // formatCapabilities {
-  cudaCapabilities = config.cudaCapabilities or defaultCapabilities;
-  enableForwardCompat = config.cudaForwardCompat or true;
+  cudaCapabilities = cudaCapabilities ? defaultCapabilities;
+  enableForwardCompat = cudaForwardCompat;
 }
