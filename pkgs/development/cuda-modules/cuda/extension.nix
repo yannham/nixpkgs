@@ -1,55 +1,13 @@
-# Type Aliases
-#
-# ReleaseAttrs : {
-#   "relative_path" : String,
-#   "sha256" : String,
-#   "md5" : String,
-#   "size" : String,
-# }
-#
-# NOTE: PackageAttrs must have at least one of the arches.
-# PackageAttrs : {
-#   "name" : String,
-#   "license" : String,
-#   "version" : String,
-#   "license_path" : None | String,
-#   "linux-aarch64" : None | ReleaseAttrs,
-#   "linux-ppc64le" : None | ReleaseAttrs,
-#   "linux-sbsa" : None | ReleaseAttrs,
-#   "linux-x86_64" : None | ReleaseAttrs,
-#   "windows-x86_64" : None | ReleaseAttrs,
-# }
-#
-# ReleaseFeaturesAttrs : {
-#   "hasBin" : Boolean,
-#   "hasDev" : Boolean,
-#   "hasDoc" : Boolean,
-#   "hasLib" : Boolean,
-#   "hasOut" : Boolean,
-#   "hasSample" : Boolean,
-#   "hasStatic" : Boolean,
-#   "rootDirs" : List String,
-# }
-#
-# NOTE: PackageFeatureAttrs must have at least one of the arches.
-# PackageFeatureAttrs : {
-#   "linux-aarch64" : None | ReleaseFeaturesAttrs,
-#   "linux-ppc64le" : None | ReleaseFeaturesAttrs,
-#   "linux-sbsa" : None | ReleaseFeaturesAttrs,
-#   "linux-x86_64" : None | ReleaseFeaturesAttrs,
-#   "windows-x86_64" : None | ReleaseFeaturesAttrs,
-# }
-#
-final: prev:
-let
+final: prev: let
   # NOTE: We use hasAttr throughout instead of the (?) operator because hasAttr does not require
   # us to interpolate our variables into strings (like ${attrName}).
-  inherit (builtins) attrNames concatMap getAttr hasAttr listToAttrs removeAttrs;
+  inherit (builtins) attrNames concatMap getAttr elem hasAttr listToAttrs;
   inherit (final) callPackage;
   inherit (prev) cudaVersion;
   inherit (prev.pkgs) config;
   inherit (prev.lib.attrsets) filterAttrs mapAttrs' nameValuePair optionalAttrs;
-  inherit (prev.lib.lists) filter intersectLists map  optionals;
+  inherit (prev.lib.lists) filter intersectLists map optionals;
+  inherit (prev.lib.modules) evalModules;
   inherit (prev.lib.trivial) flip importJSON pipe;
 
   # Make sure to use the system for the platform we want to run on, so we fetch the correct libs
@@ -72,31 +30,21 @@ let
   # Check if the current CUDA version is supported.
   cudaVersionMappingExists = hasAttr cudaVersion cudaVersionMap;
 
-  # Maps a cuda version to its manifest files.
-  # The manifest itself is from NVIDIA, but the features manifest is generated
-  # by us ahead of time and allows us to split pacakges into multiple outputs.
-  # Package names (e.g., "cuda_cccl") are mapped to their attributes or features.
-  # Since we map each attribute to a package name, we need to make sure to get rid of meta
-  # attributes included in the manifest. Currently, these are any of the following:
-  # - release_date
-  # - release_label
-  # - release_product
-  redistManifests =
-    let
-      # Remove meta attributes from the manifest
-      # removeAttrs : AttrSet String b -> Attr String b
-      removeMetaAttrs = flip removeAttrs [ "release_date" "release_label" "release_product" ];
-      # processManifest : Path -> Attr Set (String PackageAttrs)
-      processManifest = flip pipe [ importJSON removeMetaAttrs ];
-      # fullCudaVersion : String
-      fullCudaVersion = cudaVersionMap.${cudaVersion};
-    in
-    {
-      # features : Attr Set (String PackageFeatureAttrs)
-      features = processManifest ./manifests/redistrib_features_${fullCudaVersion}.json;
-      # manifest : Attr Set (String PackageAttrs)
-      manifest = processManifest ./manifests/redistrib_${fullCudaVersion}.json;
-    };
+  # fullCudaVersion : String
+  fullCudaVersion = cudaVersionMap.${cudaVersion};
+
+  evaluatedModules = evalModules {
+    modules = [
+      ./modules/feature_manifest
+      ./modules/redistrib_manifest
+      {
+        redistrib_manifest = importJSON ./manifests/redistrib_${fullCudaVersion}.json;
+        feature_manifest = importJSON ./manifests/feature_${fullCudaVersion}.json;
+      }
+    ];
+  };
+
+  inherit (evaluatedModules.config) feature_manifest redistrib_manifest;
 
   # We need to find out whether we're building any Jetson capabilities so we know whether to swap
   # out the default `linux-sbsa` redist (for server-grade ARM chips) with the `linux-aarch64`
@@ -144,50 +92,39 @@ let
       }
     );
 
-  # Function to build a single redist package
-  buildRedistPackage = callPackage ./build-cuda-redist-package.nix { };
+  # Builder function which builds a single redist package for a given platform
+  # or returns null if the package is not supported.
+  # buildRedistPackage : PackageName -> List Derivation
+  buildRedistPackage = pname: let
+    # Get the redist architectures the package provides distributables for
+    platformsSupportedByPackage = attrNames redistrib_manifest.${pname};
+    supportedNixSystemToRedistArch =
+      mapAttrs' (flip nameValuePair)
+      (filterAttrs (name: _value: elem name platformsSupportedByPackage) redistArchToNixSystem);
 
-  # Function that builds all redist packages given manifests
-  buildRedistPackages = { features, manifest }:
-    let
-      wrapper = pname:
-        let
-          # Get the redist architectures the package provides distributables for
-          packageAttrs = manifest.${pname};
-          supportedRedistArchToNixSystem =
-            filterAttrs (arch: _: hasAttr arch packageAttrs) redistArchToNixSystem;
-          supportedNixSystemToRedistArch =
-            mapAttrs' (flip nameValuePair) supportedRedistArchToNixSystem;
+    # Check if supported
+    isSupported = hasAttr system supportedNixSystemToRedistArch;
+    redistArch = supportedNixSystemToRedistArch.${system};
 
-          # Check if supported
-          isSupported = hasAttr system supportedNixSystemToRedistArch;
-          redistArch = supportedNixSystemToRedistArch.${system};
+    # Build the derivation
+    drv = callPackage ./build-cuda-redist-package.nix {
+      inherit pname;
+      # TODO(@connorbaker): We currently discard the license attribute.
+      inherit (redistrib_manifest.${pname}) version;
+      description = redistrib_manifest.${pname}.name;
+      platforms = attrNames supportedNixSystemToRedistArch;
+      redistrib_package = redistrib_manifest.${pname}.${redistArch};
+      feature_package = feature_manifest.${pname}.${redistArch};
+    };
+  in
+    optionals isSupported [(nameValuePair pname drv)];
 
-          # Build the derivation
-          drv = buildRedistPackage {
-            inherit pname;
-            # TODO(@connorbaker): We currently discard the license attribute.
-            inherit (manifest.${pname}) version;
-            description = manifest.${pname}.name;
-            platforms = attrNames supportedNixSystemToRedistArch;
-            releaseAttrs = manifest.${pname}.${redistArch};
-            releaseFeaturesAttrs = features.${pname}.${redistArch};
-          };
-
-          # Wrap in an optional so we can filter out the empty lists created by unsupported
-          # packages with concatMap.
-          wrapped = optionals isSupported [ (nameValuePair pname drv) ];
-        in
-        wrapped;
-
-      # concatMap provides us an easy way to filter out packages for unsupported platforms.
-      # We wrap the buildRedistPackage call in a list to prevent errors when the package is not
-      # supported (by returning an empty list).
-      redistPackages = listToAttrs (concatMap wrapper (attrNames manifest));
-    in
-    redistPackages;
-
-  # All redistributable packages for the current CUDA version
-  redistPackages = optionalAttrs cudaVersionMappingExists (buildRedistPackages redistManifests);
+  # concatMap provides us an easy way to filter out packages for unsupported platforms.
+  # We wrap the buildRedistPackage call in a list to prevent errors when the package is not
+  # supported (by returning an empty list).
+  redistPackages =
+    optionalAttrs
+    cudaVersionMappingExists
+    (listToAttrs (concatMap buildRedistPackage (attrNames feature_manifest)));
 in
-redistPackages
+  redistPackages

@@ -64,8 +64,6 @@ let
       cutensor = buildCuTensorPackage rec {
         version = if cudaMajorMinorVersion == "10.1" then "1.2.2.5" else "1.5.0.3";
         inherit (cuTensorVersions.${version}) hash;
-        # This can go into generic.nix
-        libPath = "lib/${if cudaMajorVersion == "10" then cudaMajorMinorVersion else cudaMajorVersion}";
       };
     in
     { inherit cutensor; };
@@ -82,7 +80,7 @@ let
     extraPackagesExtension
     (import ../development/cuda-modules/cuda/extension.nix)
     (import ../development/cuda-modules/cuda/overrides.nix)
-    # (import ../development/cuda-modules/cudnn/extension.nix)
+    (import ../development/cuda-modules/cudnn/extension.nix)
     # (import ../development/cuda-modules/tensorrt/extension.nix)
     # (import ../test/cuda/cuda-samples/extension.nix)
     # (import ../test/cuda/cuda-library-samples/extension.nix)
