@@ -1,5 +1,5 @@
-{
-, cudaVersion
+{ cudaMajorVersion
+, cudaMajorMinorVersion
 , backendStdenv
 , lib
 , libcublas
@@ -11,7 +11,7 @@
 }:
 
 let
-  libPath = lib.versions.major cudaVersion;
+  libPath = "lib/${if cudaMajorVersion == "10" then cudaMajorMinorVersion else cudaMajorVersion}";
   mostOfVersion = builtins.concatStringsSep "."
     (lib.take 3 (lib.versions.splitVersion version));
   platform = "${backendStdenv.hostPlatform.parsed.kernel.name}-${backendStdenv.hostPlatform.parsed.cpu.name}";
