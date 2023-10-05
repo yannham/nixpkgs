@@ -1,17 +1,7 @@
 final: prev: let
-  # NOTE: We use hasAttr throughout instead of the (?) operator because hasAttr does not require
-  # us to interpolate our variables into strings (like ${attrName}).
-  inherit (builtins) attrNames concatMap getAttr elem hasAttr listToAttrs;
   inherit (final) callPackage;
-  inherit (prev) cudaVersion gpus;
-  inherit (prev.pkgs) config;
-  inherit (prev.lib.attrsets) filterAttrs mapAttrs' nameValuePair optionalAttrs;
-  inherit (prev.lib.lists) filter intersectLists map optionals;
-  inherit (prev.lib.modules) evalModules;
-  inherit (prev.lib.trivial) flip importJSON pipe;
-
-  # Make sure to use the system for the platform we want to run on, so we fetch the correct libs
-  inherit (prev.pkgs.stdenv.hostPlatform) system;
+  inherit (prev) cudaVersion;
+  inherit (prev.lib) attrsets modules trivial;
 
   # Manifest files for CUDA redistributables (aka redist). These can be found at
   # https://developer.download.nvidia.com/compute/cuda/redist/
@@ -28,101 +18,55 @@ final: prev: let
   };
 
   # Check if the current CUDA version is supported.
-  cudaVersionMappingExists = hasAttr cudaVersion cudaVersionMap;
+  cudaVersionMappingExists = builtins.hasAttr cudaVersion cudaVersionMap;
 
   # fullCudaVersion : String
   fullCudaVersion = cudaVersionMap.${cudaVersion};
 
-  evaluatedModules = evalModules {
+  evaluatedModules = modules.evalModules {
     modules = [
-      ./modules/feature_manifest
-      ./modules/redistrib_manifest
+      ../modules
+      # We need to nest the manifests in a config.cuda.manifests attribute so the
+      # module system can evaluate them.
       {
-        redistrib_manifest = importJSON ./manifests/redistrib_${fullCudaVersion}.json;
-        feature_manifest = importJSON ./manifests/feature_${fullCudaVersion}.json;
+        cuda.manifests = {
+          redistrib = trivial.importJSON ./manifests/redistrib_${fullCudaVersion}.json;
+          feature = trivial.importJSON ./manifests/feature_${fullCudaVersion}.json;
+        };
       }
     ];
   };
 
-  inherit (evaluatedModules.config) feature_manifest redistrib_manifest;
-
-  # We need to find out whether we're building any Jetson capabilities so we know whether to swap
-  # out the default `linux-sbsa` redist (for server-grade ARM chips) with the `linux-aarch64`
-  # redist (which is for Jetson devices).
-  # Get the compute capabilities of all Jetson devices.
-  jetsonComputeCapabilities = pipe gpus [
-    (filter (getAttr "isJetson"))
-    (map (getAttr "computeCapability"))
-  ];
-  # Find the intersection with the user-specified list of cudaCapabilities.
-  # NOTE: Jetson devices are never built by default because they cannot be targeted along
-  # non-Jetson devices and require an aarch64 host platform. As such, if they're present anywhere,
-  # they must be in the user-specified config.cudaCapabilities.
-  # NOTE: We don't need to worry about mixes of Jetson and non-Jetson devices here -- there's
-  # sanity-checking for all that in cudaFlags.
-  jetsonTargets = intersectLists jetsonComputeCapabilities (config.cudaCapabilities or []);
-
-  # Maps NVIDIA redist arch to Nix arch.
-  # NOTE: We swap out the default `linux-sbsa` redist (for server-grade ARM chips) with the
-  # `linux-aarch64` redist (which is for Jetson devices) if we're building any Jetson devices.
-  # Since both are based on aarch64, we can only have one or the other, otherwise there's an
-  # ambiguity as to which should be used.
-  redistArchToNixSystem =
-    {
-      # Available under pkgsCross.powernv
-      linux-ppc64le = "powerpc64le-linux";
-      # Available under pkgsCross.x86_64-multiplatform
-      linux-x86_64 = "x86_64-linux";
-      # Available under pkgsCross.mingwW64
-      windows-x86_64 = "x86_64-windows";
-    }
-    // (
-      if jetsonTargets != []
-      then {
-        # linux-aarch64 is Linux for Tegra (Jetson)
-        # Available under pkgsCross.aarch64-embedded
-        linux-aarch64 = "aarch64-linux";
-      }
-      else {
-        # linux-sbsa is Linux for ARM (server-grade)
-        # Available under pkgsCross.aarch64-multiplatform
-        linux-sbsa = "aarch64-linux";
-      }
-    );
+  # Generally we prefer to do things involving getting attribute names with feature_manifest instead
+  # of redistrib_manifest because the feature manifest will have *only* the redist architecture
+  # names as the keys, whereas the redistrib manifest will also have things like version, name, license,
+  # and license_path.
+  featureManifest = evaluatedModules.config.cuda.manifests.feature;
+  redistribManifest = evaluatedModules.config.cuda.manifests.redistrib;
 
   # Builder function which builds a single redist package for a given platform
   # or returns null if the package is not supported.
-  # buildRedistPackage : PackageName -> List Derivation
-  buildRedistPackage = pname: let
-    # Get the redist architectures the package provides distributables for
-    platformsSupportedByPackage = attrNames redistrib_manifest.${pname};
-    supportedNixSystemToRedistArch =
-      mapAttrs' (flip nameValuePair)
-      (filterAttrs (name: _value: elem name platformsSupportedByPackage) redistArchToNixSystem);
-
-    # Check if supported
-    isSupported = hasAttr system supportedNixSystemToRedistArch;
-    redistArch = supportedNixSystemToRedistArch.${system};
-
-    # Build the derivation
-    drv = callPackage ./generic.nix {
+  # buildRedistPackage : PackageName -> null | Derivation
+  buildRedistPackage = pname:
+    callPackage ./generic.nix {
       inherit pname;
       # TODO(@connorbaker): We currently discard the license attribute.
-      inherit (redistrib_manifest.${pname}) version;
-      description = redistrib_manifest.${pname}.name;
-      platforms = attrNames supportedNixSystemToRedistArch;
-      redistrib_package = redistrib_manifest.${pname}.${redistArch};
-      feature_package = feature_manifest.${pname}.${redistArch};
+      inherit (redistribManifest.${pname}) version;
+      description = redistribManifest.${pname}.name;
+      # We pass the whole release to the builder because it has logic to handle
+      # the case we're trying to build on an unsupported platform.
+      redistribRelease = redistribManifest.${pname};
+      featureRelease = featureManifest.${pname};
     };
-  in
-    optionals isSupported [(nameValuePair pname drv)];
 
-  # concatMap provides us an easy way to filter out packages for unsupported platforms.
-  # We wrap the buildRedistPackage call in a list to prevent errors when the package is not
-  # supported (by returning an empty list).
-  redistPackages =
-    optionalAttrs
-    cudaVersionMappingExists
-    (listToAttrs (concatMap buildRedistPackage (attrNames feature_manifest)));
+  redistPackages = trivial.pipe featureManifest [
+    # Get all the package names
+    builtins.attrNames
+    # Build the redist packages
+    (trivial.flip attrsets.genAttrs buildRedistPackage)
+    # Wrap the whole thing in an optionalAttrs so we can return an empty set if the CUDA version
+    # is not supported.
+    (attrsets.optionalAttrs cudaVersionMappingExists)
+  ];
 in
   redistPackages

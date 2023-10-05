@@ -1,20 +1,9 @@
 # Support matrix can be found at
 # https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-880/support-matrix/index.html
-# Type aliases
-# Release = {
-#   version: String,
-#   minCudaVersion: String,
-#   maxCudaVersion: String,
-#   url: String,
-#   hash: String,
-# }
-# ReleaseAttrs = {
-#   <cuda-redist-platform>: Release,
-# }
 final: prev: let
   inherit (final) callPackage;
   inherit (prev) cudaVersion;
-  inherit (prev.lib) attrsets lists versions;
+  inherit (prev.lib) attrsets lists modules versions;
   inherit (prev.lib.strings) replaceStrings versionAtLeast versionOlder;
 
   # Compute versioned attribute name to be used in this package set
@@ -29,18 +18,20 @@ final: prev: let
     versionAtLeast cudaVersion release.minCudaVersion
     && versionAtLeast release.maxCudaVersion cudaVersion;
 
+  evaluatedModules = modules.evalModules {
+    modules = [
+      ../modules
+      ./releases.nix # Provides cudnn.releases attribute, no need to nest it here
+    ];
+  };
+
+  cudnn_releases = evaluatedModules.config.cudnn.releases;
+
   # useCudatoolkitRunfile :: Bool
   useCudatoolkitRunfile = versionOlder cudaVersion "11.3.999";
 
   # buildCuDnnPackage :: Release -> Derivation
   buildCuDnnPackage = callPackage ./generic.nix {inherit useCudatoolkitRunfile;};
-
-  # cudnnReleaseAttrs :: ReleaseAttrs
-  cudnnReleaseAttrs = builtins.import ./releases.nix;
-
-  # cudaRedistPlatform :: String
-  cudaRedistPlatfrom = final.cudaPackages.redistArchToNixSystem.
-
 
   # Reverse the list to have the latest release first
   # cudnnReleases :: List Release
