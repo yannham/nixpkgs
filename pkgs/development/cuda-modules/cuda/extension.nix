@@ -3,7 +3,7 @@ final: prev: let
   # us to interpolate our variables into strings (like ${attrName}).
   inherit (builtins) attrNames concatMap getAttr elem hasAttr listToAttrs;
   inherit (final) callPackage;
-  inherit (prev) cudaVersion;
+  inherit (prev) cudaVersion gpus;
   inherit (prev.pkgs) config;
   inherit (prev.lib.attrsets) filterAttrs mapAttrs' nameValuePair optionalAttrs;
   inherit (prev.lib.lists) filter intersectLists map optionals;
@@ -49,8 +49,6 @@ final: prev: let
   # We need to find out whether we're building any Jetson capabilities so we know whether to swap
   # out the default `linux-sbsa` redist (for server-grade ARM chips) with the `linux-aarch64`
   # redist (which is for Jetson devices).
-  # Import the list of GPUs.
-  gpus = builtins.import ../gpus.nix;
   # Get the compute capabilities of all Jetson devices.
   jetsonComputeCapabilities = pipe gpus [
     (filter (getAttr "isJetson"))
@@ -107,7 +105,7 @@ final: prev: let
     redistArch = supportedNixSystemToRedistArch.${system};
 
     # Build the derivation
-    drv = callPackage ./build-cuda-redist-package.nix {
+    drv = callPackage ./generic.nix {
       inherit pname;
       # TODO(@connorbaker): We currently discard the license attribute.
       inherit (redistrib_manifest.${pname}) version;
