@@ -1,13 +1,24 @@
-{ lib
-, nixpkgsCompatibleLibstdcxx
-, nvccCompatibleCC
-, overrideCC
-, stdenv
-, wrapCCWith
-}:
+{
+  lib,
+  nvccCompatibilities,
+  cudaVersion,
+  buildPackages,
+  overrideCC,
+  stdenv,
+  wrapCCWith,
+}: let
+  gccMajorVersion = nvccCompatibilities.${cudaVersion}.gccMaxMajorVersion;
+  # We use buildPackages (= pkgsBuildHost) because we look for a gcc that
+  # runs on our build platform, and that produces executables for the host
+  # platform (= platform on which we deploy and run the downstream packages).
+  # The target platform of buildPackages.gcc is our host platform, so its
+  # .lib output should be the libstdc++ we want to be writing in the runpaths
+  # Cf. https://github.com/NixOS/nixpkgs/pull/225661#discussion_r1164564576
+  nixpkgsCompatibleLibstdcxx = buildPackages.gcc.cc.lib;
+  nvccCompatibleCC = buildPackages."gcc${gccMajorVersion}".cc;
 
-let
-  cc = wrapCCWith
+  cc =
+    wrapCCWith
     {
       cc = nvccCompatibleCC;
 
@@ -26,8 +37,7 @@ let
   };
   assertCondition = true;
 in
-lib.extendDerivation
+  lib.extendDerivation
   assertCondition
   passthruExtra
   cudaStdenv
-

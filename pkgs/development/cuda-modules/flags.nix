@@ -81,10 +81,7 @@ let
   # For example, "8.0" maps to "Ampere".
   cudaComputeCapabilityToName = builtins.listToAttrs (
     lists.map
-      (gpu: {
-        name = gpu.computeCapability;
-        value = gpu.archName;
-      })
+      (gpu: attrsets.nameValuePair gpu.computeCapability gpu.archName)
       supportedGpus
   );
 
@@ -310,8 +307,8 @@ asserts.assertMsg
   # dropDot :: String -> String
   inherit dropDot;
 
-  inherit gpus jetsonComputeCapabilities jetsonTargets getNixSystem getRedistArch;
+  inherit defaultCapabilities supportedCapabilities jetsonComputeCapabilities jetsonTargets getNixSystem getRedistArch;
 } // formatCapabilities {
-  cudaCapabilities = cudaCapabilities ? defaultCapabilities;
+  cudaCapabilities = if cudaCapabilities == [] then defaultCapabilities else cudaCapabilities;
   enableForwardCompat = cudaForwardCompat;
 }

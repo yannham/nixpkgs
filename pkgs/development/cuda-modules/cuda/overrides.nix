@@ -1,29 +1,13 @@
 final: prev: let
-  inherit (prev) lib pkgs;
+  inherit (prev) pkgs;
+  inherit (prev.lib) attrsets lists strings;
   # cudaVersionOlder : Version -> Boolean
-  cudaVersionOlder = lib.versionOlder final.cudaVersion;
+  cudaVersionOlder = strings.versionOlder final.cudaVersion;
   # cudaVersionAtLeast : Version -> Boolean
-  cudaVersionAtLeast = lib.versionAtLeast final.cudaVersion;
-  # cudaVersionAtMost : Version -> Boolean
-  cudaVersionAtMost = flip versionAtLeast cudaVersion;
-  # cudaVersionBounded : Version -> Version -> Boolean
-  # NOTE: This is inclusive on both ends.
-  cudaVersionBounded = min: max: cudaVersionAtLeast min && cudaVersionAtMost max;
-
+  cudaVersionAtLeast = strings.versionAtLeast final.cudaVersion;
   inherit (builtins) hasAttr;
-  inherit (final) cudaVersion addBuildInputs addAutoPatchelfIgnoreMissingDeps;
-  inherit (prev.lib.attrsets) filterAttrs optionalAttrs;
-  inherit (prev.lib.lists) optionals;
-  inherit (prev.lib.strings) versionAtLeast;
-  inherit (prev.lib.trivial) flip pipe;
-  inherit (prev.pkgs.stdenv.hostPlatform) isx86_64 isAarch64 isPower64;
-  inherit
-    (prev.pkgs)
-    pkgsBuildHost # for nativeBuildInputs
-    pkgsHostTarget # good ol' pkgs, for buildInputs
-    ;
 in
-  filterAttrs (attr: _: (hasAttr attr prev)) {
+  attrsets.filterAttrs (attr: _: (hasAttr attr prev)) {
     ### Overrides to fix the components of cudatoolkit-redist
 
     # Attributes that don't exist in the previous set are removed.
@@ -41,7 +25,7 @@ in
       autoPatchelfIgnoreMissingDeps =
         ["libcuda.so.1"]
         # Before 12.0 libcufile depends on itself for some reason.
-        ++ lib.optionals (cudaVersionOlder "12.0") [
+        ++ lists.optionals (cudaVersionOlder "12.0") [
           "libcufile.so.0"
         ];
     });
@@ -50,24 +34,24 @@ in
       # Always depends on this
       [final.libcublas.lib]
       # Dependency from 12.0 and on
-      ++ lib.optionals (cudaVersionAtLeast "12.0") [
+      ++ lists.optionals (cudaVersionAtLeast "12.0") [
         final.libnvjitlink.lib
       ]
       # Dependency from 12.1 and on
-      ++ lib.optionals (cudaVersionAtLeast "12.1") [
+      ++ lists.optionals (cudaVersionAtLeast "12.1") [
         final.libcusparse.lib
       ]
     );
 
     libcusparse = final.addBuildInputs prev.libcusparse (
-      lib.optionals (cudaVersionAtLeast "12.0") [
+      lists.optionals (cudaVersionAtLeast "12.0") [
         final.libnvjitlink.lib
       ]
     );
 
     cuda_gdb = final.addBuildInputs prev.cuda_gdb (
       # x86_64 only needs gmp from 12.0 and on
-      lib.optionals (cudaVersionAtLeast "12.0") [
+      lists.optionals (cudaVersionAtLeast "12.0") [
         pkgs.gmp
       ]
     );

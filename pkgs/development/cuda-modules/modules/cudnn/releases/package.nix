@@ -1,6 +1,11 @@
 {lib, ...}: let
   inherit (lib) options types;
 
+  CudaVersionConstraint = options.mkOption {
+    description = "A constraint on the supported CUDA versions";
+    type = types.strMatching "^([[:digit:]]+)\\.([[:digit:]]+)$";
+  };
+
   example = {
     version = "8.4.1.50";
     minCudaVersion = "11.0";
@@ -14,11 +19,20 @@ in
     inherit example;
     type = types.submodule {
       options = {
-        version = types.strMatching "^([[:digit:]]+)\\.([[:digit:]]+)\\.([[:digit:]]+)\\.([[:digit:]]+)$";
-        minCudaVersion = types.strMatching "^([[:digit:]]+)\\.([[:digit:]]+)$";
-        maxCudaVersion = types.strMatching "^([[:digit:]]+)\\.([[:digit:]]+)$";
-        url = types.str;
-        hash = types.str;
+        version = options.mkOption {
+          description = "The version of CUDNN";
+          type = types.strMatching "^([[:digit:]]+)\\.([[:digit:]]+)\\.([[:digit:]]+)\\.([[:digit:]]+)$";
+        };
+        minCudaVersion = CudaVersionConstraint;
+        maxCudaVersion = CudaVersionConstraint;
+        url = options.mkOption {
+          description = "The URL to download the tarball from";
+          type = types.str;
+        };
+        hash = options.mkOption {
+          description = "The hash of the tarball";
+          type = types.str;
+        };
       };
     };
   }

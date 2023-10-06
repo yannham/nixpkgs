@@ -71,7 +71,7 @@
         url = "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-sbsa/cudnn-linux-sbsa-8.9.5.29_cuda12-archive.tar.xz";
         hash = "sha256-SLTPO/BH2jTUz/rqpdowD64t+S95m9M8SotKC9vSSsQ=";
       }
-    ]; 
+    ];
     # x86_64
     linux-x86_64 = [
       {
