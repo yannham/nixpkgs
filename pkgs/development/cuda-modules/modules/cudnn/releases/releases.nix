@@ -36,5 +36,5 @@ in
   options.mkOption {
     description = "A collection of CUDNN packages targeting different platforms";
     inherit example;
-    type = types.attrsOf Package.type;
+    type = types.attrsOf (types.listOf Package.type);
   }

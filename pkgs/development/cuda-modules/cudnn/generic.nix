@@ -1,25 +1,26 @@
-{ stdenv,
+{
+  # General arguments supplied by callPackage
+  stdenv,
   backendStdenv,
   lib,
   lndir,
   zlib,
-  useCudatoolkitRunfile ? false,
-  cudaVersion,
-  cudaMajorVersion,
-  cudatoolkit, # For cuda < 11
   libcublas ? null, # cuda <11 doesn't ship redist packages
   autoPatchelfHook,
   autoAddOpenGLRunpathHook,
   fetchurl,
-}: {
-  version,
-  url,
-  hash,
-  minCudaVersion,
-  maxCudaVersion,
+  cudatoolkit, # For cuda < 11
+  cudaVersion,
+  # Arguments supplied by the caller
+  useCudatoolkitRunfile ? false,
+  # See ../modules/cudnn/releases/package.nix for type of package
+  package,
+  # Platforms supported by the package
+  # platforms :: List String
+  platforms,
 }:
-assert useCudatoolkitRunfile || (libcublas != null); let
-  inherit (lib) lists strings trivial versions;
+assert libcublas == null -> useCudatoolkitRunfile; let
+  inherit (lib) lists strings trivial versions maintainers licenses meta sourceTypes;
 
   # majorMinorPatch :: String -> String
   majorMinorPatch = (trivial.flip trivial.pipe) [
@@ -30,16 +31,16 @@ assert useCudatoolkitRunfile || (libcublas != null); let
 
   # versionTriple :: String
   # Version with three components: major.minor.patch
-  versionTriple = majorMinorPatch version;
+  versionTriple = majorMinorPatch package.version;
 in
   backendStdenv.mkDerivation {
-    pname = "cudatoolkit-${cudaMajorVersion}-cudnn";
-    version = versionTriple;
+    pname = "cudnn";
+    inherit (package) version;
     strictDeps = true;
     outputs = ["out" "lib" "static" "dev"];
 
     src = fetchurl {
-      inherit url hash;
+      inherit (package) url hash;
     };
 
     # We do need some other phases, like configurePhase, so the multiple-output setup hook works.
@@ -53,17 +54,20 @@ in
     ];
 
     # Used by autoPatchelfHook
-    buildInputs = [
-      # Note this libstdc++ isn't from the (possibly older) nvcc-compatible
-      # stdenv, but from the (newer) stdenv that the rest of nixpkgs uses
-      stdenv.cc.cc.lib
+    buildInputs =
+      [
+        # Note this libstdc++ isn't from the (possibly older) nvcc-compatible
+        # stdenv, but from the (newer) stdenv that the rest of nixpkgs uses
+        stdenv.cc.cc.lib
 
-      zlib
-    ] ++ lists.optionals useCudatoolkitRunfile [
-      cudatoolkit
-    ] ++ lists.optionals (!useCudatoolkitRunfile) [
-      libcublas.lib
-    ];
+        zlib
+      ]
+      ++ lists.optionals useCudatoolkitRunfile [
+        cudatoolkit
+      ]
+      ++ lists.optionals (!useCudatoolkitRunfile) [
+        libcublas.lib
+      ];
 
     # We used to patch Runpath here, but now we use autoPatchelfHook
     #
@@ -74,18 +78,17 @@ in
     # output.
     # Note that moveToOutput operates on all outputs:
     # https://github.com/NixOS/nixpkgs/blob/2920b6fc16a9ed5d51429e94238b28306ceda79e/pkgs/build-support/setup-hooks/multiple-outputs.sh#L105-L107
-    installPhase =
-      ''
-        runHook preInstall
+    installPhase = ''
+      runHook preInstall
 
-        mkdir -p "$out"
-        mv * "$out"
-        moveToOutput "lib64" "$lib"
-        moveToOutput "lib" "$lib"
-        moveToOutput "**/*.a" "$static"
+      mkdir -p "$out"
+      mv * "$out"
+      moveToOutput "lib64" "$lib"
+      moveToOutput "lib" "$lib"
+      moveToOutput "**/*.a" "$static"
 
-        runHook postInstall
-      '';
+      runHook postInstall
+    '';
 
     # Without --add-needed autoPatchelf forgets $ORIGIN on cuda>=8.0.5.
     postFixup = strings.optionalString (strings.versionAtLeast versionTriple "8.0.5") ''
@@ -109,9 +112,9 @@ in
     # found: <customPhaseName>".
     postPatchelf = ''
       mkdir -p "$out"
-      ${lib.meta.getExe lndir} "$lib" "$out"
-      ${lib.meta.getExe lndir} "$static" "$out"
-      ${lib.meta.getExe lndir} "$dev" "$out"
+      ${meta.getExe lndir} "$lib" "$out"
+      ${meta.getExe lndir} "$static" "$out"
+      ${meta.getExe lndir} "$dev" "$out"
     '';
 
     passthru = {
@@ -132,22 +135,22 @@ in
     # unqualified (that is, without an explicit output).
     outputSpecified = true;
 
-    meta = with lib; {
+    meta = {
       # Check that the cudatoolkit version satisfies our min/max constraints (both
       # inclusive). We mark the package as broken if it fails to satisfies the
       # official version constraints (as recorded in default.nix). In some cases
       # you _may_ be able to smudge version constraints, just know that you're
       # embarking into unknown and unsupported territory when doing so.
       broken =
-        strings.versionOlder cudaVersion minCudaVersion
-        || strings.versionOlder maxCudaVersion cudaVersion;
+        strings.versionOlder cudaVersion package.minCudaVersion
+        || strings.versionOlder package.maxCudaVersion cudaVersion;
       description = "NVIDIA CUDA Deep Neural Network library (cuDNN)";
       homepage = "https://developer.nvidia.com/cudnn";
       sourceProvenance = with sourceTypes; [binaryNativeCode];
       # TODO: consider marking unfreRedistributable when not using runfile
       license = licenses.unfree;
-      platforms = ["x86_64-linux"];
-      maintainers = with maintainers; [mdaiter samuela];
+      inherit platforms;
+      maintainers = with maintainers; [mdaiter samuela connorbaker];
       # Force the use of the default, fat output by default (even though `dev` exists, which
       # causes Nix to prefer that output over the others if outputSpecified isn't set).
       outputsToInstall = ["out"];
