@@ -1,10 +1,12 @@
 # Support matrix can be found at
 # https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-880/support-matrix/index.html
-final: prev: let
-  inherit (final) callPackage;
-  inherit (prev) cudaVersion flags;
-  inherit (prev.pkgs) hostPlatform;
-  inherit (prev.lib) attrsets lists modules versions strings;
+{
+  cudaVersion,
+  flags,
+  hostPlatform,
+  lib,
+}: let
+  inherit (lib) attrsets lists modules versions strings;
 
   evaluatedModules = modules.evalModules {
     modules = [
@@ -42,8 +44,9 @@ final: prev: let
   # newestToOldestCudnnPackages :: List (AttrSet Packages)
   newestToOldestCudnnPackages = lists.reverseList cudnnPackages;
 
-  # buildCudnnPackage :: Package -> Derivation
-  buildCudnnPackage = package: {
+  # buildCudnnPackage :: callPackage -> Package -> Derivation
+  # TODO(@connorbaker): Why not Release instead of Package? See CuTensor's extension.nix.
+  buildCudnnPackage = callPackage: package: {
     name = computeName package;
     value = callPackage ./generic.nix {
       inherit package;
@@ -52,16 +55,16 @@ final: prev: let
     };
   };
 
-  # allCudnnDerivations :: AttrSet Derivation
-  versionedCudnnDerivations = builtins.listToAttrs (lists.map buildCudnnPackage newestToOldestCudnnPackages);
+  # versionedCudnnDerivations :: callPackage -> AttrSet Derivation
+  versionedCudnnDerivations = callPackage: builtins.listToAttrs (lists.map (buildCudnnPackage callPackage) newestToOldestCudnnPackages);
 
-  # allCudnnDerivations :: AttrSet Derivation
-  allCudnnDerivations = let
+  extension = final: _prev: let
     nameOfNewest = computeName (builtins.head newestToOldestCudnnPackages);
-    containsDefault = attrsets.optionalAttrs (versionedCudnnDerivations != {}) {
-      cudnn = versionedCudnnDerivations.${nameOfNewest};
+    drvs = versionedCudnnDerivations final.callPackage;
+    containsDefault = attrsets.optionalAttrs (drvs != {}) {
+      cudnn = drvs.${nameOfNewest};
     };
   in
-    versionedCudnnDerivations // containsDefault;
+    drvs // containsDefault;
 in
-  allCudnnDerivations
+  extension
