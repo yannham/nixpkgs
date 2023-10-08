@@ -1,7 +1,9 @@
-final: prev: let
-  inherit (final) callPackage;
-  inherit (prev) cudaVersion;
-  inherit (prev.lib) attrsets modules trivial;
+{
+  cudaVersion,
+  lib,
+}: let
+  inherit (lib) attrsets modules trivial;
+  redistName = "cuda";
 
   # Manifest files for CUDA redistributables (aka redist). These can be found at
   # https://developer.download.nvidia.com/compute/cuda/redist/
@@ -44,29 +46,27 @@ final: prev: let
   featureManifest = evaluatedModules.config.cuda.manifests.feature;
   redistribManifest = evaluatedModules.config.cuda.manifests.redistrib;
 
-  # Builder function which builds a single redist package for a given platform
-  # or returns null if the package is not supported.
-  # buildRedistPackage : PackageName -> null | Derivation
-  buildRedistPackage = pname:
-    callPackage ./generic.nix {
-      inherit pname;
-      # TODO(@connorbaker): We currently discard the license attribute.
-      inherit (redistribManifest.${pname}) version;
-      description = redistribManifest.${pname}.name;
+  # Builder function which builds a single redist package for a given platform.
+  # buildRedistPackage : callPackage -> PackageName -> Derivation
+  buildRedistPackage = callPackage: pname:
+    callPackage ../genericManifestBuilder.nix {
+      inherit pname redistName;
       # We pass the whole release to the builder because it has logic to handle
       # the case we're trying to build on an unsupported platform.
       redistribRelease = redistribManifest.${pname};
       featureRelease = featureManifest.${pname};
     };
 
-  redistPackages = trivial.pipe featureManifest [
-    # Get all the package names
-    builtins.attrNames
-    # Build the redist packages
-    (trivial.flip attrsets.genAttrs buildRedistPackage)
-    # Wrap the whole thing in an optionalAttrs so we can return an empty set if the CUDA version
-    # is not supported.
-    (attrsets.optionalAttrs cudaVersionMappingExists)
-  ];
+  # Build all the redist packages given final and prev.
+  redistPackages = final: _prev:
+    trivial.pipe featureManifest [
+      # Get all the package names
+      builtins.attrNames
+      # Build the redist packages
+      (trivial.flip attrsets.genAttrs (buildRedistPackage final.callPackage))
+      # Wrap the whole thing in an optionalAttrs so we can return an empty set if the CUDA version
+      # is not supported.
+      (attrsets.optionalAttrs cudaVersionMappingExists)
+    ];
 in
   redistPackages

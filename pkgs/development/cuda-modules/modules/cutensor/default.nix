@@ -2,5 +2,5 @@
   imports = [
     ../generic/manifests
   ];
-  options.cuda.manifests = options.generic.manifests;
+  options.cutensor.manifests = options.generic.manifests;
 }
