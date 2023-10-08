@@ -1,36 +1,34 @@
-final: prev: let
-  inherit (prev) pkgs;
-  inherit (prev.lib) attrsets lists strings;
+{
+  cudaVersion,
+  lib,
+  numactl,
+  rdma-core,
+  gmp,
+  addOpenGLRunpath,
+  freeglut,
+  libGLU,
+  libglvnd,
+  mesa,
+}: let
+  inherit (lib) lists strings;
   # cudaVersionOlder : Version -> Boolean
-  cudaVersionOlder = strings.versionOlder final.cudaVersion;
+  cudaVersionOlder = strings.versionOlder cudaVersion;
   # cudaVersionAtLeast : Version -> Boolean
-  cudaVersionAtLeast = strings.versionAtLeast final.cudaVersion;
-  inherit (builtins) hasAttr;
+  cudaVersionAtLeast = strings.versionAtLeast cudaVersion;
+
+  addBuildInputs = drv: buildInputs:
+    drv.overrideAttrs (prevAttrs: {
+      buildInputs = (prevAttrs.buildInputs or []) ++ buildInputs;
+    });
 in
-  attrsets.filterAttrs (attr: _: (hasAttr attr prev)) {
-    ### Overrides to fix the components of cudatoolkit-redist
-
-    # Attributes that don't exist in the previous set are removed.
-    # That means only overrides can go here, and not new expressions!
-
-    libcufile = prev.libcufile.overrideAttrs (oldAttrs: {
-      buildInputs =
-        oldAttrs.buildInputs
-        ++ [
-          final.libcublas.lib
-          pkgs.numactl
-          pkgs.rdma-core
-        ];
-      # libcuda needs to be resolved during runtime
-      autoPatchelfIgnoreMissingDeps =
-        ["libcuda.so.1"]
-        # Before 12.0 libcufile depends on itself for some reason.
-        ++ lists.optionals (cudaVersionOlder "12.0") [
-          "libcufile.so.0"
-        ];
+  final: prev: {
+    libcufile = prev.libcufile.overrideAttrs (prevAttrs: {
+      buildInputs = (prev.buildInputs or []) ++ [final.libcublas.lib numactl rdma-core];
+      # Before 12.0 libcufile depends on itself for some reason.
+      autoPatchelfIgnoreMissingDeps = (prevAttrs.autoPatchelfIgnoreMissingDeps or []) ++ lists.optionals (cudaVersionOlder "12.0") ["libcufile.so.0"];
     });
 
-    libcusolver = final.addBuildInputs prev.libcusolver (
+    libcusolver = addBuildInputs prev.libcusolver (
       # Always depends on this
       [final.libcublas.lib]
       # Dependency from 12.0 and on
@@ -43,20 +41,20 @@ in
       ]
     );
 
-    libcusparse = final.addBuildInputs prev.libcusparse (
+    libcusparse = addBuildInputs prev.libcusparse (
       lists.optionals (cudaVersionAtLeast "12.0") [
         final.libnvjitlink.lib
       ]
     );
 
-    cuda_gdb = final.addBuildInputs prev.cuda_gdb (
+    cuda_gdb = addBuildInputs prev.cuda_gdb (
       # x86_64 only needs gmp from 12.0 and on
       lists.optionals (cudaVersionAtLeast "12.0") [
-        pkgs.gmp
+        gmp
       ]
     );
 
-    cuda_nvcc = prev.cuda_nvcc.overrideAttrs (_: {
+    cuda_nvcc = prev.cuda_nvcc.overrideAttrs (prevAttrs: {
       # Required by cmake's enable_language(CUDA) to build a test program
       # When implementing cross-compilation support: this is
       # final.pkgs.targetPackages.cudaPackages.cuda_cudart
@@ -84,37 +82,37 @@ in
       #
       # In practice, TargetTarget appears to work:
       # https://gist.github.com/fd80ff142cd25e64603618a3700e7f82
-      depsTargetTargetPropagated = [
-        final.setupCudaHook
-      ];
+      depsTargetTargetPropagated =
+        (prevAttrs.depsTargetTargetPropagated or [])
+        ++ [
+          final.setupCudaHook
+        ];
     });
 
-    cuda_nvprof = prev.cuda_nvprof.overrideAttrs (oldAttrs: {
-      nativeBuildInputs = oldAttrs.nativeBuildInputs ++ [pkgs.addOpenGLRunpath];
-      buildInputs = oldAttrs.buildInputs ++ [final.cuda_cupti.lib];
-      # libcuda needs to be resolved during runtime
-      autoPatchelfIgnoreMissingDeps = ["libcuda.so.1"];
+    cuda_nvprof = prev.cuda_nvprof.overrideAttrs (prevAttrs: {
+      nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [addOpenGLRunpath];
+      buildInputs = prevAttrs.buildInputs ++ [final.cuda_cupti.lib];
     });
 
-    cuda_demo_suite = final.addBuildInputs prev.cuda_demo_suite [
-      pkgs.freeglut
-      pkgs.libGLU
-      pkgs.libglvnd
-      pkgs.mesa
+    cuda_demo_suite = addBuildInputs prev.cuda_demo_suite [
+      freeglut
+      libGLU
+      libglvnd
+      mesa
       final.libcufft.lib
       final.libcurand.lib
     ];
 
-    # nsight_compute = prev.nsight_compute.overrideAttrs (oldAttrs: {
+    # nsight_compute = prev.nsight_compute.overrideAttrs (prevAttrs: {
     #   nativeBuildInputs =
-    #     oldAttrs.nativeBuildInputs
+    #     prevAttrs.nativeBuildInputs
     #     ++ (
     #       if (versionOlder prev.nsight_compute.version "2022.2.0")
     #       then [pkgs.qt5.wrapQtAppsHook]
     #       else [pkgs.qt6.wrapQtAppsHook]
     #     );
     #   buildInputs =
-    #     oldAttrs.buildInputs
+    #     prevAttrs.buildInputs
     #     ++ (
     #       if (versionOlder prev.nsight_compute.version "2022.2.0")
     #       then [pkgs.qt5.qtwebview]
@@ -122,11 +120,9 @@ in
     #     );
     # });
 
-    nvidia_driver = prev.nvidia_driver.overrideAttrs (oldAttrs: {
-      # libcuda needs to be resolved during runtime
-      autoPatchelfIgnoreMissingDeps = ["libcuda.so.1"];
+    nvidia_driver = prev.nvidia_driver.overrideAttrs {
       # No need to support this package as we have drivers already
       # in linuxPackages.
       meta.broken = true;
-    });
+    };
   }
