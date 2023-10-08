@@ -10,21 +10,23 @@
   flags,
   stdenv,
   hostPlatform,
-  # Function arguments
+  # Builder-specific arguments
   # Short package name (e.g., "cuda_cccl")
   # pname : String
   pname,
-  # Long package name (e.g., "CXX Core Compute Libraries")
-  # description : String
-  description,
-  # version : Version
-  version,
-  # See ./modules/redistrib_manifest/release.nix
+  # Common name (e.g., "cutensor" or "cudnn") -- used in the URL.
+  # Also known as the Redistributable Name.
+  # redistName : String,
+  redistName,
+  # If libPath is non-null, it must be a subdirectory of `lib`.
+  # The contents of `libPath` will be moved to the root of `lib`.
+  libPath ? null,
+  # See ./modules/generic/manifests/redistrib/release.nix
   redistribRelease,
-  # See ./modules/feature_manifest/release.nix
+  # See ./modules/generic/manifests/feature/release.nix
   featureRelease,
 }: let
-  inherit (lib) attrsets lists meta strings licenses teams;
+  inherit (lib) attrsets lists meta strings licenses teams sourceTypes;
 
   # Get the redist architectures for which package provides distributables.
   # These are used by meta.platforms.
@@ -36,7 +38,8 @@ in
     # redistributables are sensitive to the compiler flags provided to stdenv. The patchelf package
     # is sensitive to the compiler flags provided to stdenv, and we depend on it. As such, we are
     # also sensitive to the compiler flags provided to stdenv.
-    inherit pname version;
+    inherit pname;
+    inherit (redistribRelease) version;
     strictDeps = true;
 
     # NOTE: Outputs are evaluated jointly with meta, so in the case that this is an unsupported platform,
@@ -58,7 +61,7 @@ in
       ++ lists.optionals hasSample ["sample"];
 
     src = fetchurl {
-      url = "https://developer.download.nvidia.com/compute/cuda/redist/${redistribRelease.${redistArch}.relative_path}";
+      url = "https://developer.download.nvidia.com/compute/${redistName}/redist/${redistribRelease.${redistArch}.relative_path}";
       inherit (redistribRelease.${redistArch}) sha256;
     };
 
@@ -101,6 +104,12 @@ in
       ''
         runHook preInstall
       ''
+      # Handle the existence of libPath, which requires us to re-arrange the lib directory
+      + strings.optionalString (libPath != null) ''
+        mv "lib/${libPath}" lib_new
+        rm -r lib
+        mv lib_new lib
+      ''
       # doc and dev have special output handling. Other outputs need to be moved to their own
       # output.
       # Note that moveToOutput operates on all outputs:
@@ -130,6 +139,9 @@ in
       + ''
         runHook postInstall
       '';
+
+    # libcuda needs to be resolved during runtime
+    autoPatchelfIgnoreMissingDeps = ["libcuda.so" "libcuda.so.1"];
 
     # The out output leverages the same functionality which backs the `symlinkJoin` function in
     # Nixpkgs:
@@ -172,10 +184,11 @@ in
     outputSpecified = true;
 
     meta = {
-      inherit description;
+      description = redistribRelease.name;
+      sourceProvenance = [sourceTypes.binaryNativeCode];
       platforms = lists.map (flags.getNixSystem) supportedRedistArchs;
       license = licenses.unfree;
-      maintainers = teams.cuda.members;
+      maintainers = [teams.cuda.members];
       # Force the use of the default, fat output by default (even though `dev` exists, which
       # causes Nix to prefer that output over the others if outputSpecified isn't set).
       outputsToInstall = ["out"];

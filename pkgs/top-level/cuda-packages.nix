@@ -1,10 +1,7 @@
 {
-  config,
+  callPackage,
   cudaVersion,
   lib,
-  pkgs,
-  hostPlatform,
-  generateSplicesForMkScope,
   newScope,
 }: let
   inherit (lib) customisation fixedPoints versions;
@@ -15,36 +12,35 @@
   #
   # I highly recommend watching it.
   #
-  # In any of the extensions, trying to use attribute defined in
-  # passthruFunction which is built via callPackage will cause infinite recursion.
-  #
-  # To my knowledge (@connorbaker) the only thing that is acceptable to take from
-  # `final` while in an extension is `callPackage`.
-  #
-  # Because we want to be able to use gpus, nvccCompatibilities, flags, etc. in
-  # the extensions, we have to pass them in via passthruFunction without using
-  # `final` to create them.
-  #
-  # TODO(@connorbaker): Does this mean that overriding `cudaVersion` on `cudaPackages`
-  # will not work?
-  # TODO(@connorbaker): Including CUDNN in the extensions causes infinite recursion.
-  # The CUDA extension seems fine, and though it uses flags as well (which seems to be
-  # the source of the infinite recursion), it doesn't cause it. Perhaps this is because
-  # the usage of flags in the CUDA extension occurs within the generic builder, while
-  # the usage of flags in the CUDNN extension occurs directly in the extension.
+  # Most helpful comment regarding recursive attribute sets:
+  # 
+  # https://github.com/NixOS/nixpkgs/pull/256324#issuecomment-1749935979
+  # 
+  # To summarize:
+  # 
+  # - `prev` should only be used to access attributes which are going to be overriden.
+  # - `final` should only be used to access `callPackage` to build new packages.
+  # - Attribute names should be computable without relying on `final`.
+  #   - Extensions should take arguments to build attribute names before relying on `final`.
+  # 
+  # TODO(@connorbaker): A big problem with this is that the attribute names of the CUDA extension
+  # depend on `cudaVersion`, as the version determines which packages are available.
+  # In this first iteration, we're going to structure these extensions so they produce attribute sets
+  # mapping package name (computed using the `cudaVersion` from the top of this file, not from `final`)
+  # to package derivation.
+  # I don't know how this will interact with overrides.
+  # Backbone
+  gpus = builtins.import ../development/cuda-modules/gpus.nix;
+  nvccCompatibilities = builtins.import ../development/cuda-modules/nvccCompatibilities.nix;
+  flags = callPackage ../development/cuda-modules/flags.nix {
+    inherit cudaVersion gpus;
+  };
   passthruFunction = final: {
-    inherit cudaVersion pkgs lib;
-    cudaMajorVersion = versions.major final.cudaVersion;
-    cudaMajorMinorVersion = versions.majorMinor final.cudaVersion;
-    addBuildInputs = drv: buildInputs:
-      drv.overrideAttrs (oldAttrs: {
-        buildInputs = (oldAttrs.buildInputs or []) ++ buildInputs;
-      });
+    # TODO(@connorbaker): `flags` doesn't depend on `final.gpus` or `final.cudaVersion`.
+    inherit gpus nvccCompatibilities flags cudaVersion;
 
-    # Backbone of the cudaPackages scope
-    gpus = builtins.import ../development/cuda-modules/gpus.nix;
-    nvccCompatibilities = builtins.import ../development/cuda-modules/nvccCompatibilities.nix;
-    flags = final.callPackage ../development/cuda-modules/flags.nix {};
+    # TODO(@connorbaker): `cudaFlags` is an alias for `flags` which should be removed in the future.
+    cudaFlags = flags;
 
     # Exposed as cudaPackages.backendStdenv.
     # This is what nvcc uses as a backend,
@@ -61,41 +57,46 @@
     nccl = final.callPackage ../development/cuda-modules/nccl {};
     nccl-tests = final.callPackage ../development/cuda-modules/nccl-tests {};
     saxpy = final.callPackage ../development/cuda-modules/saxpy {};
+    
+    # TODO(@connorbaker): These don't rely on cudaVersion defined in `cudaPackagesAttrs`.
+    # Will overrides work?
+    cudaMajorVersion = versions.major cudaVersion;
+    cudaMajorMinorVersion = versions.majorMinor cudaVersion;
   };
 
-  cutensorExtension = final: prev: let
-    ### CuTensor
-    buildCuTensorPackage = final.callPackage ../development/cuda-modules/cutensor/generic.nix;
+  
+  # NOTE(@connorbaker):
+  # Assume we refactored ../development/cuda-modules/setup-hooks/extension.nix so that, instead of
+  #   final: _:
+  # it took 
+  #   {callPackage}:
+  # as an argument. Then, if we wanted to merge the setup-hooks packages with cudaPackages, we could do this:
+  #   // (builtins.import ../development/cuda-modules/setup-hooks {inherit (final) callPackage; })
+  # But we could not do this:
+  #   // (final.callPackage ../development/cuda-modules/setup-hooks {})
+  # as it would result in infinite recursion. Why? The latter requires using `final.callPackage` to
+  # compute the attribute names while the former does not.
 
-    cuTensorVersions = {
-      "1.2.2.5" = {
-        hash = "sha256-lU7iK4DWuC/U3s1Ct/rq2Gr3w4F2U7RYYgpmF05bibY=";
-      };
-      "1.5.0.3" = {
-        hash = "sha256-T96+lPC6OTOkIs/z3QWg73oYVSyidN0SVkBWmT9VRx0=";
-      };
-    };
 
-    inherit (final) cudaMajorMinorVersion;
-
-    cutensor = buildCuTensorPackage rec {
-      version =
-        if cudaMajorMinorVersion == "10.1"
-        then "1.2.2.5"
-        else "1.5.0.3";
-      inherit (cuTensorVersions.${version}) hash;
-    };
-  in {inherit cutensor;};
-
+  # TODO(@connorbaker): Does it make sense to use `callPackage` as a way to automate
+  # passing arguments to extensions? Or is this just a bad idea?
   composedExtension = fixedPoints.composeManyExtensions [
     (import ../development/cuda-modules/setup-hooks/extension.nix)
-    (import ../development/cuda-modules/cuda/extension.nix)
-    (import ../development/cuda-modules/cuda/overrides.nix)
-    (import ../development/cuda-modules/cudnn/extension.nix)
+    (callPackage ../development/cuda-modules/cuda/extension.nix {
+      inherit cudaVersion;
+    })
+    (callPackage ../development/cuda-modules/cuda/overrides.nix {
+      inherit cudaVersion;
+    })
+    (callPackage ../development/cuda-modules/cudnn/extension.nix {
+      inherit cudaVersion flags;
+    })
+    (callPackage ../development/cuda-modules/cutensor/extension.nix {
+      inherit cudaVersion flags;
+    })
     # (import ../development/cuda-modules/tensorrt/extension.nix)
     # (import ../test/cuda/cuda-samples/extension.nix)
     # (import ../test/cuda/cuda-library-samples/extension.nix)
-    # cutensorExtension
   ];
 
   cudaPackages = customisation.makeScope newScope (fixedPoints.extends composedExtension passthruFunction);
