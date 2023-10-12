@@ -124,6 +124,8 @@ stdenv.mkDerivation {
     cuda_nvprof.dev # <cuda_profiler_api.h>
   ] ++ lists.optionals (strings.versionAtLeast cudaVersion "11.8") [
     cuda_profiler_api.dev # <cuda_profiler_api.h>
+  ] ++ lists.optionals (strings.versionAtLeast cudaVersion "12.0") [
+    cuda_cccl.dev # <nv/target>
   ]) ++ lists.optionals rocmSupport [
     hip
     hipblas
