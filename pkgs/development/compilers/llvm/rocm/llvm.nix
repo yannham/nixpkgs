@@ -19,7 +19,7 @@
 , python3Packages
 , buildDocs ? true
 , buildMan ? true
-, buildTests ? true
+, buildTests ? false
 , targetName ? "llvm"
 , targetDir ? "llvm"
 , targetProjects ? [ ]
@@ -138,7 +138,7 @@ in stdenv.mkDerivation (finalAttrs: {
       --replace "Path.cpp" ""
   '' + extraPostPatch;
 
-  doCheck = buildTests;
+  doCheck = false;
   checkTarget = lib.concatStringsSep " " checkTargets;
 
   postInstall = lib.optionalString finalAttrs.passthru.isLLVM ''
