@@ -76,7 +76,7 @@ backendStdenv.mkDerivation (finalAttrs: {
     description = "Multi-GPU and multi-node collective communication primitives for NVIDIA GPUs";
     homepage = "https://developer.nvidia.com/nccl";
     license = licenses.bsd3;
-    platforms = [ "x86_64-linux" ];
+    platforms = platforms.linux;
     maintainers = with maintainers; [ mdaiter orivej ];
   };
 })
