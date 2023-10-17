@@ -7295,9 +7295,7 @@ with pkgs;
   cudaPackages_12_2 = recurseIntoAttrs (callPackage ./cuda-packages.nix { cudaVersion = "12.2"; });
   cudaPackages_12 = cudaPackages_12_0;
 
-  # TODO: try upgrading once there is a cuDNN release supporting CUDA 12. No
-  # such cuDNN release as of 2023-01-10.
-  cudaPackages = cudaPackages_11;
+  cudaPackages = cudaPackages_12;
 
   # TODO: move to alias
   cudatoolkit = cudaPackages.cudatoolkit;
