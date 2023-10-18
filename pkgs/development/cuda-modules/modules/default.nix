@@ -5,5 +5,6 @@
     ./cuda
     ./cudnn
     ./cutensor
+    ./tensorrt
   ];
 }

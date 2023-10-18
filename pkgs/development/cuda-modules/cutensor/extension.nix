@@ -17,8 +17,9 @@
   flags,
   hostPlatform,
   lib,
+  mkVersionedPackageName
 }: let
-  inherit (lib) attrsets lists modules versions strings trivial;
+  inherit (lib) attrsets lists modules versions trivial;
 
   redistName = "cutensor";
   pname = "libcutensor";
@@ -88,7 +89,7 @@
   # Compute versioned attribute name to be used in this package set
   # Patch version changes should not break the build, so we only use major and minor
   # computeName :: RedistribRelease -> String
-  computeName = {version, ...}: redistName + "_" + strings.replaceStrings ["."] ["_"] (versions.majorMinor version);
+  computeName = {version, ...}: mkVersionedPackageName redistName version;
 in
   final: _: let
     # buildCutensorPackage :: Manifests -> AttrSet Derivation
