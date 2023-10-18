@@ -3,8 +3,9 @@
   cudaVersion,
   lib,
   newScope,
+  pkgs,
 }: let
-  inherit (lib) customisation fixedPoints versions;
+  inherit (lib) customisation fixedPoints strings versions;
   # Notes:
   #
   # Silvan (Tweag) covered some things on recursive attribute sets in the Nix Hour:
@@ -37,6 +38,7 @@
   };
   passthruFunction = final: {
     # TODO(@connorbaker): `flags` doesn't depend on `final.gpus` or `final.cudaVersion`.
+    inherit lib pkgs;
     inherit gpus nvccCompatibilities flags cudaVersion;
 
     # TODO(@connorbaker): `cudaFlags` is an alias for `flags` which should be removed in the future.
@@ -77,9 +79,9 @@
   # as it would result in infinite recursion. Why? The latter requires using `final.callPackage` to
   # compute the attribute names while the former does not.
 
+  mkVersionedPackageName = name: version:
+    strings.concatStringsSep "_" [name (strings.replaceStrings ["."] ["_"] (versions.majorMinor version))];
 
-  # TODO(@connorbaker): Does it make sense to use `callPackage` as a way to automate
-  # passing arguments to extensions? Or is this just a bad idea?
   composedExtension = fixedPoints.composeManyExtensions [
     (import ../development/cuda-modules/setup-hooks/extension.nix)
     (callPackage ../development/cuda-modules/cuda/extension.nix {
@@ -88,13 +90,17 @@
     (callPackage ../development/cuda-modules/cuda/overrides.nix {
       inherit cudaVersion;
     })
-    (callPackage ../development/cuda-modules/cudnn/extension.nix {
-      inherit cudaVersion flags;
+    (callPackage ../development/cuda-modules/genericMultiplexExtension.nix {
+      inherit cudaVersion flags mkVersionedPackageName;
+      redistName = "cudnn";
     })
     (callPackage ../development/cuda-modules/cutensor/extension.nix {
-      inherit cudaVersion flags;
+      inherit cudaVersion flags mkVersionedPackageName;
     })
-    # (import ../development/cuda-modules/tensorrt/extension.nix)
+    (callPackage ../development/cuda-modules/genericMultiplexExtension.nix {
+      inherit cudaVersion flags mkVersionedPackageName;
+      redistName = "tensorrt";
+    })
     # (import ../test/cuda/cuda-samples/extension.nix)
     # (import ../test/cuda/cuda-library-samples/extension.nix)
   ];

@@ -1,43 +1,53 @@
+# Similar in function to the ./genericManifestBuilder.nix,
+# but for packages which will have multiple versions within the same
+# package set.
 {
   # General arguments supplied by callPackage
   stdenv,
   backendStdenv,
+  fetchurl,
   lib,
   lndir,
   zlib,
-  libcublas ? null, # cuda <11 doesn't ship redist packages
   autoPatchelfHook,
   autoAddOpenGLRunpathHook,
-  fetchurl,
-  cudatoolkit, # For cuda < 11
   cudaVersion,
-  # Arguments supplied by the caller
-  useCudatoolkitRunfile ? false,
-  # See ../modules/cudnn/releases/package.nix for type of package
+  # Arguments specific to this package
+  pname,
   package,
-  # Platforms supported by the package
-  # platforms :: List String
   platforms,
-}:
-assert libcublas == null -> useCudatoolkitRunfile; let
-  inherit (lib) lists strings trivial versions maintainers licenses meta sourceTypes;
-
-  # majorMinorPatch :: String -> String
-  majorMinorPatch = (trivial.flip trivial.pipe) [
-    (versions.splitVersion)
-    (lists.take 3)
-    (strings.concatStringsSep ".")
-  ];
-
-  # versionTriple :: String
-  # Version with three components: major.minor.patch
-  versionTriple = majorMinorPatch package.version;
+}: let
+  inherit (lib) attrsets lists strings trivial versions maintainers licenses meta sourceTypes;
 in
-  backendStdenv.mkDerivation {
-    pname = "cudnn";
+  backendStdenv.mkDerivation (finalAttrs: {
+    inherit pname;
     inherit (package) version;
+
+    # Don't force serialization to string for structured attributes, like outputToPatterns
+    # and brokenConditions.
+    # Avoids "set cannot be coerced to string" errors.
+    __structuredAttrs = true;
     strictDeps = true;
-    outputs = ["out" "lib" "static" "dev"];
+
+    # Traversed in the order of the outputs speficied in outputs;
+    # entries are skipped if they don't exist in outputs.
+    outputs = ["out"];
+    outputToPatterns = {
+      bin = ["bin"];
+      lib = ["lib" "lib64"];
+      static = ["**/*.a"];
+      sample = ["samples"];
+      python = ["**/*.whl"];
+    };
+
+    # Useful for introspecting why something went wrong.
+    brokenConditions = let
+      cudaTooOld = strings.versionOlder cudaVersion package.minCudaVersion;
+      cudaTooNew = (package.maxCudaVersion != null) && strings.versionOlder package.maxCudaVersion cudaVersion;
+    in {
+      "CUDA version is too old" = cudaTooOld;
+      "CUDA version is too new" = cudaTooNew;
+    };
 
     src = fetchurl {
       inherit (package) url hash;
@@ -54,47 +64,32 @@ in
     ];
 
     # Used by autoPatchelfHook
-    buildInputs =
-      [
-        # Note this libstdc++ isn't from the (possibly older) nvcc-compatible
-        # stdenv, but from the (newer) stdenv that the rest of nixpkgs uses
-        stdenv.cc.cc.lib
+    buildInputs = [
+      # Note this libstdc++ isn't from the (possibly older) nvcc-compatible
+      # stdenv, but from the (newer) stdenv that the rest of nixpkgs uses
+      stdenv.cc.cc.lib
+      zlib
+    ];
 
-        zlib
-      ]
-      ++ lists.optionals useCudatoolkitRunfile [
-        cudatoolkit
-      ]
-      ++ lists.optionals (!useCudatoolkitRunfile) [
-        libcublas.lib
-      ];
-
-    # We used to patch Runpath here, but now we use autoPatchelfHook
-    #
-    # Note also that version <=8.3.0 contained a subdirectory "lib64/" but in
-    # version 8.3.2 it seems to have been renamed to simply "lib/".
-    #
     # doc and dev have special output handling. Other outputs need to be moved to their own
     # output.
     # Note that moveToOutput operates on all outputs:
     # https://github.com/NixOS/nixpkgs/blob/2920b6fc16a9ed5d51429e94238b28306ceda79e/pkgs/build-support/setup-hooks/multiple-outputs.sh#L105-L107
-    installPhase = ''
-      runHook preInstall
-
-      mkdir -p "$out"
-      mv * "$out"
-      moveToOutput "lib64" "$lib"
-      moveToOutput "lib" "$lib"
-      moveToOutput "**/*.a" "$static"
-
-      runHook postInstall
-    '';
-
-    # Without --add-needed autoPatchelf forgets $ORIGIN on cuda>=8.0.5.
-    postFixup = strings.optionalString (strings.versionAtLeast versionTriple "8.0.5") ''
-      patchelf $lib/lib/libcudnn.so --add-needed libcudnn_cnn_infer.so
-      patchelf $lib/lib/libcudnn_ops_infer.so --add-needed libcublas.so --add-needed libcublasLt.so
-    '';
+    installPhase = let
+      mkMoveToOutputCommand = output: let
+        template = pattern: ''moveToOutput "${pattern}" "${"$" + output}"'';
+        patterns = finalAttrs.outputToPatterns.${output} or [];
+      in
+        strings.concatMapStringsSep "\n" template patterns;
+    in
+      # NOTE: It is important that we not use `moveToOutput` on the `out` output, because
+      ''
+        runHook preInstall
+        mkdir -p "$out"
+        mv * "$out"
+        ${strings.concatMapStringsSep "\n" mkMoveToOutputCommand (builtins.tail finalAttrs.outputs)}
+        runHook postInstall
+      '';
 
     # The out output leverages the same functionality which backs the `symlinkJoin` function in
     # Nixpkgs:
@@ -104,22 +99,27 @@ in
     #
     # It is important that this run after the autoPatchelfHook, otherwise the symlinks in out will reference libraries in lib, creating a circular dependency.
     postPhases = ["postPatchelf"];
+
     # For each output, create a symlink to it in the out output.
     # NOTE: We must recreate the out output here, because the setup hook will have deleted it
     # if it was empty.
-    # NOTE: Do not use optionalString based on whether `outputs` contains only `out` -- phases
-    # which are empty strings are skipped/unset and result in errors of the form "command not
-    # found: <customPhaseName>".
-    postPatchelf = ''
+    postPatchelf = let
+      # Note the double dollar sign -- we want to interpolate the variable in bash, not the string.
+      mkJoinWithOutOutputCommand = output: ''${meta.getExe lndir} "${"$" + output}" "$out"'';
+    in ''
       mkdir -p "$out"
-      ${meta.getExe lndir} "$lib" "$out"
-      ${meta.getExe lndir} "$static" "$out"
-      ${meta.getExe lndir} "$dev" "$out"
+      ${strings.concatMapStringsSep "\n" mkJoinWithOutOutputCommand (builtins.tail finalAttrs.outputs)}
     '';
 
     passthru = {
-      inherit useCudatoolkitRunfile;
-      majorVersion = versions.major versionTriple;
+      majorVersion = versions.major finalAttrs.version;
+      majorMinorVersion = versions.majorMinor finalAttrs.version;
+      majorMinorPatchVersion = trivial.pipe finalAttrs.version [
+        (versions.splitVersion)
+        (lists.take 3)
+        (strings.concatStringsSep ".")
+      ];
+      stdenv = backendStdenv;
     };
 
     # Setting propagatedBuildInputs to false will prevent outputs known to the multiple-outputs
@@ -136,23 +136,18 @@ in
     outputSpecified = true;
 
     meta = {
+      inherit platforms;
       # Check that the cudatoolkit version satisfies our min/max constraints (both
       # inclusive). We mark the package as broken if it fails to satisfies the
       # official version constraints (as recorded in default.nix). In some cases
       # you _may_ be able to smudge version constraints, just know that you're
       # embarking into unknown and unsupported territory when doing so.
-      broken =
-        strings.versionOlder cudaVersion package.minCudaVersion
-        || strings.versionOlder package.maxCudaVersion cudaVersion;
-      description = "NVIDIA CUDA Deep Neural Network library (cuDNN)";
-      homepage = "https://developer.nvidia.com/cudnn";
+      broken = lists.any trivial.id (attrsets.attrValues finalAttrs.brokenConditions);
       sourceProvenance = with sourceTypes; [binaryNativeCode];
-      # TODO: consider marking unfreRedistributable when not using runfile
       license = licenses.unfree;
-      inherit platforms;
-      maintainers = with maintainers; [mdaiter samuela connorbaker];
+      maintainers = with maintainers; [cuad-maintainers];
       # Force the use of the default, fat output by default (even though `dev` exists, which
       # causes Nix to prefer that output over the others if outputSpecified isn't set).
       outputsToInstall = ["out"];
     };
-  }
+  })
