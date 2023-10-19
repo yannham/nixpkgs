@@ -1,25 +1,32 @@
 {
-  final,
-  mkVersionedPackageName,
+  # callPackage-provided arguments.
   cudaVersion,
-  hostPlatform,
+  fetchurl,
+  final,
   lib,
+  zlib,
+  # Additional arguments passed to us by the generic builder.
   package,
-  requireFile,
-}: drv: let
+  ...
+}: let
   inherit (lib) lists maintainers strings;
 in
-  drv.overrideAttrs (finalAttrs: prevAttrs: {
-    outputs =
-      prevAttrs.outputs
-      ++ [
-        "lib"
-        "static"
-        "dev"
-      ];
+  finalAttrs: prevAttrs: {
+    src = fetchurl {
+      inherit (package) url hash;
+    };
+
+    # Useful for inspecting why something went wrong.
+    brokenConditions = let
+      cudaTooOld = strings.versionOlder cudaVersion package.minCudaVersion;
+      cudaTooNew = (package.maxCudaVersion != null) && strings.versionOlder package.maxCudaVersion cudaVersion;
+    in prevAttrs.brokenConditions // {
+      "CUDA version is too old" = cudaTooOld;
+      "CUDA version is too new" = cudaTooNew;
+    };
 
     buildInputs =
-      prevAttrs.buildInputs
+      prevAttrs.buildInputs ++ [zlib]
       ++ lists.optionals finalAttrs.passthru.useCudatoolkitRunfile [
         final.cudatoolkit
       ]
@@ -28,7 +35,7 @@ in
       ];
 
     # Tell autoPatchelf about runtime dependencies.
-    # NOTE: Versions from CUDA releases have four components.
+    # NOTE: Versions from CUDNN releases have four components.
     postFixup = strings.optionalString (strings.versionAtLeast finalAttrs.version "8.0.5.0") ''
       patchelf $lib/lib/libcudnn.so --add-needed libcudnn_cnn_infer.so
       patchelf $lib/lib/libcudnn_ops_infer.so --add-needed libcublas.so --add-needed libcublasLt.so
@@ -39,8 +46,7 @@ in
     meta =
       prevAttrs.meta
       // {
-        description = "NVIDIA CUDA Deep Neural Network library (cuDNN)";
         homepage = "https://developer.nvidia.com/cudnn";
         maintainers = prevAttrs.meta.maintainers ++ (with maintainers; [mdaiter samuela connorbaker]);
       };
-  })
+  }
