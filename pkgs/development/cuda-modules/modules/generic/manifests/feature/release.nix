@@ -1,6 +1,11 @@
-{lib, ...}: let
+{
+  lib,
+  config,
+  ...
+}: let
+  Package = import ./package.nix {inherit lib config;};
+in let
   inherit (lib) options types;
-  Package = import ./package.nix {inherit lib;};
   example = {
     linux-aarch64 = {
       cudaArchitectures = [

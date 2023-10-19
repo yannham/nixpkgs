@@ -92,14 +92,14 @@
     })
     (callPackage ../development/cuda-modules/genericMultiplexExtension.nix {
       inherit cudaVersion flags mkVersionedPackageName;
-      redistName = "cudnn";
+      pname = "cudnn";
     })
     (callPackage ../development/cuda-modules/cutensor/extension.nix {
       inherit cudaVersion flags mkVersionedPackageName;
     })
     (callPackage ../development/cuda-modules/genericMultiplexExtension.nix {
       inherit cudaVersion flags mkVersionedPackageName;
-      redistName = "tensorrt";
+      pname = "tensorrt";
     })
     # (import ../test/cuda/cuda-samples/extension.nix)
     # (import ../test/cuda/cuda-library-samples/extension.nix)

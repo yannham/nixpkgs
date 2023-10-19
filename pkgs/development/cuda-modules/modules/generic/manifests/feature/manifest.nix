@@ -1,6 +1,10 @@
-{lib, ...}: let
+{
+  lib,
+  config,
+  ...
+}: let
   inherit (lib) options types;
-  Release = import ./release.nix {inherit lib;};
+  Release = import ./release.nix {inherit lib config;};
 
   example = {
     libcublas = {

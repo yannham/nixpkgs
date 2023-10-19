@@ -26,39 +26,88 @@
   # See ./modules/generic/manifests/feature/release.nix
   featureRelease,
 }: let
-  inherit (lib) attrsets lists meta strings licenses teams sourceTypes;
+  inherit (lib) attrsets lists meta strings trivial licenses teams sourceTypes;
 
   # Get the redist architectures for which package provides distributables.
   # These are used by meta.platforms.
   supportedRedistArchs = builtins.attrNames featureRelease;
   redistArch = flags.getRedistArch hostPlatform.system;
 in
-  backendStdenv.mkDerivation {
+  backendStdenv.mkDerivation (finalAttrs: {
     # NOTE: Even though there's no actual buildPhase going on here, the derivations of the
     # redistributables are sensitive to the compiler flags provided to stdenv. The patchelf package
     # is sensitive to the compiler flags provided to stdenv, and we depend on it. As such, we are
     # also sensitive to the compiler flags provided to stdenv.
     inherit pname;
     inherit (redistribRelease) version;
+
+    # Don't force serialization to string for structured attributes, like outputToPatterns
+    # and brokenConditions.
+    # Avoids "set cannot be coerced to string" errors.
+    __structuredAttrs = true;
+
+    # Keep better track of dependencies.
     strictDeps = true;
 
     # NOTE: Outputs are evaluated jointly with meta, so in the case that this is an unsupported platform,
     # we still need to provide a list of outputs.
     outputs = let
-      hasBin = attrsets.attrByPath [redistArch "outputs" "hasBin"] false featureRelease;
-      hasLib = attrsets.attrByPath [redistArch "outputs" "hasLib"] false featureRelease;
-      hasStatic = attrsets.attrByPath [redistArch "outputs" "hasStatic"] false featureRelease;
-      hasDev = attrsets.attrByPath [redistArch "outputs" "hasDev"] false featureRelease;
-      hasDoc = attrsets.attrByPath [redistArch "outputs" "hasDoc"] false featureRelease;
-      hasSample = attrsets.attrByPath [redistArch "outputs" "hasSample"] false featureRelease;
+      # Checks whether the redistributable provides the an output corresponding to the given attribute
+      # name. For example, the boolean representing whether a static library is provided is stored
+      # in the "hasStatic" attribute.
+      hasOutput = attrName: attrsets.attrByPath [redistArch "outputs" attrName] false featureRelease;
+      # Order is important here so we use a list.
+      additionalOutputs = lists.concatMap ({
+        attrName,
+        output,
+      }:
+        lists.optional (hasOutput attrName) output) [
+        {
+          attrName = "hasBin";
+          output = "bin";
+        }
+        {
+          attrName = "hasLib";
+          output = "lib";
+        }
+        {
+          attrName = "hasStatic";
+          output = "static";
+        }
+        {
+          attrName = "hasDev";
+          output = "dev";
+        }
+        {
+          attrName = "hasDoc";
+          output = "doc";
+        }
+        {
+          attrName = "hasSample";
+          output = "sample";
+        }
+        {
+          attrName = "hasPython";
+          output = "python";
+        }
+      ];
     in
-      ["out"]
-      ++ lists.optionals hasBin ["bin"]
-      ++ lists.optionals hasLib ["lib"]
-      ++ lists.optionals hasStatic ["static"]
-      ++ lists.optionals hasDev ["dev"]
-      ++ lists.optionals hasDoc ["doc"]
-      ++ lists.optionals hasSample ["sample"];
+      ["out"] ++ additionalOutputs;
+
+    # Traversed in the order of the outputs speficied in outputs;
+    # entries are skipped if they don't exist in outputs.
+    outputToPatterns = {
+      bin = ["bin"];
+      lib = ["lib" "lib64"];
+      static = ["**/*.a"];
+      sample = ["samples"];
+      python = ["**/*.whl"];
+    };
+
+    # Useful for introspecting why something went wrong.
+    # Maps descriptions of why the derivation would be marked broken to
+    # booleans indicating whether that description is true.
+    brokenConditions = {};
 
     src = fetchurl {
       url = "https://developer.download.nvidia.com/compute/${redistName}/redist/${redistribRelease.${redistArch}.relative_path}";
@@ -92,13 +141,16 @@ in
       "$ORIGIN"
     ];
 
+    # NOTE: We don't need to check for hasDev or hasDoc, because those outputs are handled by
+    # the multiple-outputs setup hook.
+    # NOTE: moveToOutput operates on all outputs:
+    # https://github.com/NixOS/nixpkgs/blob/2920b6fc16a9ed5d51429e94238b28306ceda79e/pkgs/build-support/setup-hooks/multiple-outputs.sh#L105-L107
     installPhase = let
-      hasBin = attrsets.attrByPath [redistArch "outputs" "hasBin"] false featureRelease;
-      hasLib = attrsets.attrByPath [redistArch "outputs" "hasLib"] false featureRelease;
-      hasStatic = attrsets.attrByPath [redistArch "outputs" "hasStatic"] false featureRelease;
-      hasSample = attrsets.attrByPath [redistArch "outputs" "hasSample"] false featureRelease;
-      # NOTE: We don't need to check for hasDev or hasDoc, because those outputs are handled by
-      # the multiple-outputs setup hook.
+      mkMoveToOutputCommand = output: let
+        template = pattern: ''moveToOutput "${pattern}" "${"$" + output}"'';
+        patterns = finalAttrs.outputToPatterns.${output} or [];
+      in
+        strings.concatMapStringsSep "\n" template patterns;
     in
       # Pre-install hook
       ''
@@ -110,33 +162,10 @@ in
         rm -r lib
         mv lib_new lib
       ''
-      # doc and dev have special output handling. Other outputs need to be moved to their own
-      # output.
-      # Note that moveToOutput operates on all outputs:
-      # https://github.com/NixOS/nixpkgs/blob/2920b6fc16a9ed5d51429e94238b28306ceda79e/pkgs/build-support/setup-hooks/multiple-outputs.sh#L105-L107
       + ''
         mkdir -p "$out"
-        rm LICENSE
         mv * "$out"
-      ''
-      # Handle bin, which defaults to out
-      + strings.optionalString hasBin ''
-        moveToOutput "bin" "$bin"
-      ''
-      # Handle lib, which defaults to out
-      + strings.optionalString hasLib ''
-        moveToOutput "lib" "$lib"
-      ''
-      # Handle static libs, which isn't handled by the setup hook
-      + strings.optionalString hasStatic ''
-        moveToOutput "**/*.a" "$static"
-      ''
-      # Handle samples, which isn't handled by the setup hook
-      + strings.optionalString hasSample ''
-        moveToOutput "samples" "$sample"
-      ''
-      # Post-install hook
-      + ''
+        ${strings.concatMapStringsSep "\n" mkMoveToOutputCommand (builtins.tail finalAttrs.outputs)}
         runHook postInstall
       '';
 
@@ -151,20 +180,16 @@ in
     #
     # It is important that this run after the autoPatchelfHook, otherwise the symlinks in out will reference libraries in lib, creating a circular dependency.
     postPhases = ["postPatchelf"];
+
     # For each output, create a symlink to it in the out output.
     # NOTE: We must recreate the out output here, because the setup hook will have deleted it
     # if it was empty.
-    # NOTE: Do not use optionalString based on whether `outputs` contains only `out` -- phases
-    # which are empty strings are skipped/unset and result in errors of the form "command not
-    # found: <customPhaseName>".
-    postPatchelf = ''
+    postPatchelf = let
+      # Note the double dollar sign -- we want to interpolate the variable in bash, not the string.
+      mkJoinWithOutOutputCommand = output: ''${meta.getExe lndir} "${"$" + output}" "$out"'';
+    in ''
       mkdir -p "$out"
-      for output in $outputs; do
-        if [ "$output" = "out" ]; then
-          continue
-        fi
-        ${meta.getExe lndir} "''${!output}" "$out"
-      done
+      ${strings.concatMapStringsSep "\n" mkJoinWithOutOutputCommand (builtins.tail finalAttrs.outputs)}
     '';
 
     # Make the CUDA-patched stdenv available
@@ -187,10 +212,11 @@ in
       description = redistribRelease.name;
       sourceProvenance = [sourceTypes.binaryNativeCode];
       platforms = lists.map (flags.getNixSystem) supportedRedistArchs;
+      broken = lists.any trivial.id (attrsets.attrValues finalAttrs.brokenConditions);
       license = licenses.unfree;
-      maintainers = [teams.cuda.members];
+      maintainers = teams.cuda.members;
       # Force the use of the default, fat output by default (even though `dev` exists, which
       # causes Nix to prefer that output over the others if outputSpecified isn't set).
       outputsToInstall = ["out"];
     };
-  }
+  })

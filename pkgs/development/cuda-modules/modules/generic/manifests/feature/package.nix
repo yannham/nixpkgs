@@ -1,8 +1,10 @@
-{lib, ...}: let
+{
+  lib,
+  config,
+  ...
+}: let
+  inherit (config.generic.types) cudaArch libSoName;
   inherit (lib) options types;
-
-  CudaArch = import ./cuda-arch.nix {inherit lib;};
-  LibSoName = import ./lib-so-name.nix {inherit lib;};
   Outputs = import ./outputs.nix {inherit lib;};
 
   example = {
@@ -53,8 +55,8 @@ in
             This is either a list of architectures or a mapping from subdirectory name to list of architectures.
           '';
           type = types.oneOf [
-            (types.listOf CudaArch.type)
-            (types.attrsOf (types.listOf CudaArch.type))
+            (types.listOf cudaArch)
+            (types.attrsOf (types.listOf cudaArch))
           ];
         };
         dependencies = options.mkOption {
@@ -77,8 +79,8 @@ in
           '';
           example = ["libcublas.so.11"];
           type = types.oneOf [
-            (types.listOf LibSoName.type)
-            (types.attrsOf (types.listOf LibSoName.type))
+            (types.listOf libSoName)
+            (types.attrsOf (types.listOf libSoName))
           ];
         };
         outputs = Outputs;
@@ -90,8 +92,8 @@ in
           '';
           example = ["libcublas.so.11"];
           type = types.oneOf [
-            (types.listOf LibSoName.type)
-            (types.attrsOf (types.listOf LibSoName.type))
+            (types.listOf libSoName)
+            (types.attrsOf (types.listOf libSoName))
           ];
         };
       };
