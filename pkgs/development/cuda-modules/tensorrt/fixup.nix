@@ -6,22 +6,14 @@
   lib,
   package,
   requireFile,
-}: drv: let
+}: let
   inherit (lib) maintainers strings versions;
 in
-  drv.overrideAttrs (finalAttrs: prevAttrs: {
-    outputs =
-      prevAttrs.outputs
-      ++ [
-        "bin"
-        "lib"
-        "static"
-        "dev"
-        "sample"
-        "python"
-      ];
-
+  finalAttrs: prevAttrs: {
+    # Useful for inspecting why something went wrong.
     brokenConditions = let
+      cudaTooOld = strings.versionOlder cudaVersion package.minCudaVersion;
+      cudaTooNew = (package.maxCudaVersion != null) && strings.versionOlder package.maxCudaVersion cudaVersion;
       cudnnVersionIsSpecified = package.cudnnVersion != null;
       cudnnVersionSpecified = versions.majorMinor package.cudnnVersion;
       cudnnVersionProvided = versions.majorMinor finalAttrs.passthru.cudnn.version;
@@ -30,6 +22,8 @@ in
     in
       prevAttrs.brokenConditions
       // {
+        "CUDA version is too old" = cudaTooOld;
+        "CUDA version is too new" = cudaTooNew;
         "CUDNN version is too old" = cudnnTooOld;
         "CUDNN version is too new" = cudnnTooNew;
       };
@@ -48,6 +42,8 @@ in
         $ nix-store --add-fixed sha256 ${package.filename}
       '';
     };
+
+    # We need to look inside the extracted output to get the files we need.
     sourceRoot = "TensorRT-${finalAttrs.version}";
 
     buildInputs =
@@ -103,8 +99,7 @@ in
     meta =
       prevAttrs.meta
       // {
-        description = "TensorRT: a high-performance deep learning interface";
         homepage = "https://developer.nvidia.com/tensorrt";
         maintainers = prevAttrs.meta.maintainers ++ [maintainers.aidalgol];
       };
-  })
+  }
