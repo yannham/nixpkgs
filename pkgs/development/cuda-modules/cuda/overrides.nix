@@ -47,6 +47,27 @@ in
       ]
     );
 
+    # TODO(@connorbaker): Why are these librares in `compat` and not `lib`? Will the be picked up
+    # by the linker?
+    cuda_compat = prev.cuda_compat.overrideAttrs (prevAttrs: {
+      # TODO(@connorbaker): Why does this not work when concatenating with the previous patterns?
+      # cuda_compat-aarch64-linux> error: auto-patchelf could not satisfy dependency libnvrm_gpu.so wanted by /nix/store/p1vgpxr2vi05hz5xq0b85p14s2crji1j-cuda_compat-12.0.32271208/compat/libcuda.so.1.1
+      # cuda_compat-aarch64-linux> error: auto-patchelf could not satisfy dependency libnvrm_mem.so wanted by /nix/store/p1vgpxr2vi05hz5xq0b85p14s2crji1j-cuda_compat-12.0.32271208/compat/libcuda.so.1.1
+      # cuda_compat-aarch64-linux> error: auto-patchelf could not satisfy dependency libnvdla_runtime.so wanted by /nix/store/p1vgpxr2vi05hz5xq0b85p14s2crji1j-cuda_compat-12.0.32271208/compat/libnvcudla.so
+      # Works:
+      autoPatchelfIgnoreMissingDeps = ["*"];
+      # Does not work:
+      # autoPatchelfIgnoreMissingDeps = [
+      #   "libnvrm_gpu.so"
+      #   "libnvrm_mem.so"
+      #   "libnvdla_runtime.so"
+      # ];
+      # Also does not work, which is very odd.
+      # autoPatchelfIgnoreMissingDeps = (prevAttrs.autoPatchelfIgnoreMissingDeps or []) ++ [
+      #   "*"
+      # ];
+    });
+
     cuda_gdb = addBuildInputs prev.cuda_gdb (
       # x86_64 only needs gmp from 12.0 and on
       lists.optionals (cudaVersionAtLeast "12.0") [
