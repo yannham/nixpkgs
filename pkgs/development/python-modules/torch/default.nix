@@ -48,7 +48,10 @@
 
 let
   inherit (lib) attrsets lists strings trivial;
-  inherit (cudaPackages) cudaFlags cudnn nccl;
+  inherit (cudaPackages) cudaFlags cudnn;
+
+  # Some packages are not available on all platforms
+  nccl = cudaPackages.nccl or null;
 
   setBool = v: if v then "1" else "0";
 
@@ -256,6 +259,7 @@ in buildPythonPackage rec {
   PYTORCH_BUILD_VERSION = version;
   PYTORCH_BUILD_NUMBER = 0;
 
+  USE_NCCL = setBool (nccl != null);
   USE_SYSTEM_NCCL = setBool useSystemNccl;                  # don't build pytorch's third_party NCCL
   USE_STATIC_NCCL = setBool useSystemNccl;
 
@@ -319,6 +323,8 @@ in buildPythonPackage rec {
       libcusolver.lib
       libcusparse.dev
       libcusparse.lib
+    ] ++ lists.optionals (nccl != null) [
+      # Some platforms do not support NCCL (i.e., Jetson)
       nccl.dev # Provides nccl.h AND a static copy of NCCL!
     ] ++ lists.optionals (strings.versionOlder cudaVersion "11.8") [
       cuda_nvprof.dev # <cuda_profiler_api.h>

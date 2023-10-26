@@ -100,8 +100,6 @@
   # NOTE: Jetson devices are never built by default because they cannot be targeted along
   # non-Jetson devices and require an aarch64 host platform. As such, if they're present anywhere,
   # they must be in the user-specified cudaCapabilities.
-  # NOTE: We don't need to worry about mixes of Jetson and non-Jetson devices here -- there's
-  # sanity-checking for all that in cudaFlags.
   jetsonTargets = lists.intersectLists jetsonComputeCapabilities cudaCapabilities;
 
   # dropDot :: String -> String
