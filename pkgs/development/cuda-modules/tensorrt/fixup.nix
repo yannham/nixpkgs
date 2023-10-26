@@ -1,13 +1,15 @@
 {
-  final,
-  mkVersionedPackageName,
   cudaVersion,
+  final,
   hostPlatform,
   lib,
+  mkVersionedPackageName,
   package,
+  patchelf,
   requireFile,
+  ...
 }: let
-  inherit (lib) maintainers strings versions;
+  inherit (lib) maintainers meta strings versions;
 in
   finalAttrs: prevAttrs: {
     # Useful for inspecting why something went wrong.
@@ -75,7 +77,7 @@ in
     in
       (prevAttrs.postFixup or "")
       + ''
-        patchelf --add-needed libnvinfer.so \
+        ${meta.getExe patchelf} --add-needed libnvinfer.so \
           "$lib/lib/libnvinfer.so.${versionTriple}" \
           "$lib/lib/libnvinfer_plugin.so.${versionTriple}" \
           "$lib/lib/libnvinfer_builder_resource.so.${versionTriple}"
