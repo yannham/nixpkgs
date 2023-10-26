@@ -1,15 +1,14 @@
 {
-  # callPackage-provided arguments.
   cudaVersion,
   fetchurl,
   final,
   lib,
-  zlib,
-  # Additional arguments passed to us by the generic builder.
   package,
+  patchelf,
+  zlib,
   ...
 }: let
-  inherit (lib) lists maintainers strings;
+  inherit (lib) lists maintainers meta strings;
 in
   finalAttrs: prevAttrs: {
     src = fetchurl {
@@ -40,8 +39,8 @@ in
     # Tell autoPatchelf about runtime dependencies.
     # NOTE: Versions from CUDNN releases have four components.
     postFixup = strings.optionalString (strings.versionAtLeast finalAttrs.version "8.0.5.0") ''
-      patchelf $lib/lib/libcudnn.so --add-needed libcudnn_cnn_infer.so
-      patchelf $lib/lib/libcudnn_ops_infer.so --add-needed libcublas.so --add-needed libcublasLt.so
+      ${meta.getExe patchelf} $lib/lib/libcudnn.so --add-needed libcudnn_cnn_infer.so
+      ${meta.getExe patchelf} $lib/lib/libcudnn_ops_infer.so --add-needed libcublas.so --add-needed libcublasLt.so
     '';
 
     passthru.useCudatoolkitRunfile = strings.versionOlder cudaVersion "11.3.999";
