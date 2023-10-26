@@ -5,7 +5,7 @@
   newScope,
   pkgs,
 }: let
-  inherit (lib) customisation fixedPoints strings versions;
+  inherit (lib) attrsets customisation fixedPoints strings versions;
   # Notes:
   #
   # Silvan (Tweag) covered some things on recursive attribute sets in the Nix Hour:
@@ -36,7 +36,7 @@
   flags = callPackage ../development/cuda-modules/flags.nix {
     inherit cudaVersion gpus;
   };
-  passthruFunction = final: {
+  passthruFunction = final: ({
     # TODO(@connorbaker): `flags` doesn't depend on `final.gpus` or `final.cudaVersion`.
     inherit lib pkgs;
     inherit gpus nvccCompatibilities flags cudaVersion;
@@ -56,15 +56,18 @@
 
     # Loose packages
     cudatoolkit = final.callPackage ../development/cuda-modules/cudatoolkit {};
-    nccl = final.callPackage ../development/cuda-modules/nccl {};
-    nccl-tests = final.callPackage ../development/cuda-modules/nccl-tests {};
     saxpy = final.callPackage ../development/cuda-modules/saxpy {};
     
     # TODO(@connorbaker): These don't rely on cudaVersion defined in `cudaPackagesAttrs`.
     # Will overrides work?
     cudaMajorVersion = versions.major cudaVersion;
     cudaMajorMinorVersion = versions.majorMinor cudaVersion;
-  };
+  } // attrsets.optionalAttrs (flags.jetsonTargets == []) {
+    # NCCL is not supported on Jetson, because it does not use NVLink or PCI-e for inter-GPU communication.
+    # https://forums.developer.nvidia.com/t/can-jetson-orin-support-nccl/232845/9
+    nccl = final.callPackage ../development/cuda-modules/nccl {};
+    nccl-tests = final.callPackage ../development/cuda-modules/nccl-tests {};
+  });
 
   
   # NOTE(@connorbaker):
