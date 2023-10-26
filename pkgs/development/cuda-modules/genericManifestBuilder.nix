@@ -49,50 +49,38 @@ in
     # Keep better track of dependencies.
     strictDeps = true;
 
+    # TODO(@connorbaker): Update `cuda-redist-find-features` to produce an attrset of boolean values for the
+    # outputs instead of `has*` attributes.
     # NOTE: Outputs are evaluated jointly with meta, so in the case that this is an unsupported platform,
     # we still need to provide a list of outputs.
     outputs = let
+      # Uppercases the first character of a string.
+      upperFirst = string:
+        let
+          firstCharacter = builtins.substring 0 1 string;
+          firstCharacterUpper = strings.toUpper firstCharacter;
+          otherCharacters = strings.removePrefix firstCharacter string;
+          upperFirst = firstCharacterUpper + otherCharacters;
+        in
+          upperFirst;
       # Checks whether the redistributable provides the an output corresponding to the given attribute
       # name. For example, the boolean representing whether a static library is provided is stored
       # in the "hasStatic" attribute.
-      hasOutput = attrName: attrsets.attrByPath [redistArch "outputs" attrName] false featureRelease;
+      hasOutput = output: attrsets.attrByPath [redistArch "outputs" ("has" + upperFirst output)] false featureRelease;
       # Order is important here so we use a list.
-      additionalOutputs = lists.concatMap ({
-        attrName,
-        output,
-      }:
-        lists.optional (hasOutput attrName) output) [
-        {
-          attrName = "hasBin";
-          output = "bin";
-        }
-        {
-          attrName = "hasLib";
-          output = "lib";
-        }
-        {
-          attrName = "hasStatic";
-          output = "static";
-        }
-        {
-          attrName = "hasDev";
-          output = "dev";
-        }
-        {
-          attrName = "hasDoc";
-          output = "doc";
-        }
-        {
-          attrName = "hasSample";
-          output = "sample";
-        }
-        {
-          attrName = "hasPython";
-          output = "python";
-        }
+      additionalOutputs = builtins.filter hasOutput [
+        "bin"
+        "lib"
+        "static"
+        "dev"
+        "doc"
+        "sample"
+        "python"
       ];
+      # The out output is special -- it's the default output and we always include it.
+      outputs = ["out"] ++ additionalOutputs;
     in
-      ["out"] ++ additionalOutputs;
+      outputs;
 
     # Traversed in the order of the outputs speficied in outputs;
     # entries are skipped if they don't exist in outputs.
@@ -170,7 +158,7 @@ in
       '';
 
     # libcuda needs to be resolved during runtime
-    autoPatchelfIgnoreMissingDeps = ["libcuda.so" "libcuda.so.1"];
+    autoPatchelfIgnoreMissingDeps = ["libcuda.so" "libcuda.so.*"];
 
     # The out output leverages the same functionality which backs the `symlinkJoin` function in
     # Nixpkgs:
