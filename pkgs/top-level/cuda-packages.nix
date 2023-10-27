@@ -62,7 +62,7 @@
     # Will overrides work?
     cudaMajorVersion = versions.major cudaVersion;
     cudaMajorMinorVersion = versions.majorMinor cudaVersion;
-  } // attrsets.optionalAttrs (flags.jetsonTargets == []) {
+  } // attrsets.optionalAttrs (!flags.isJetsonBuild) {
     # NCCL is not supported on Jetson, because it does not use NVLink or PCI-e for inter-GPU communication.
     # https://forums.developer.nvidia.com/t/can-jetson-orin-support-nccl/232845/9
     nccl = final.callPackage ../development/cuda-modules/nccl {};
