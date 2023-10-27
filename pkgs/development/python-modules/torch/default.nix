@@ -184,6 +184,9 @@ in buildPythonPackage rec {
         'message(FATAL_ERROR "Found NCCL header version and library version' \
         'message(WARNING "Found NCCL header version and library version'
   ''
+  + lib.optionalString cudaFlags.isJetsonBuild ''
+    substituteInPlace torch/utils/cpp_extension.py --replace "'8.6', '8.9'" "'8.6', '8.7', '8.9'"
+  ''
   # error: no member named 'aligned_alloc' in the global namespace; did you mean simply 'aligned_alloc'
   # This lib overrided aligned_alloc hence the error message. Tltr: his function is linkable but not in header.
   + lib.optionalString (stdenv.isDarwin && lib.versionOlder stdenv.targetPlatform.darwinSdkVersion "11.0") ''
