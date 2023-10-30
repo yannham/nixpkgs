@@ -1,5 +1,4 @@
 diff --git a/sysdeps/aarch64/fpu/bits/math-vector.h b/sysdeps/aarch64/fpu/bits/math-vector.h
-index 7c200599..583a4264 100644
 --- a/sysdeps/aarch64/fpu/bits/math-vector.h
 +++ b/sysdeps/aarch64/fpu/bits/math-vector.h
 @@ -25,17 +25,17 @@
