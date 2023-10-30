@@ -14,16 +14,16 @@
   # I highly recommend watching it.
   #
   # Most helpful comment regarding recursive attribute sets:
-  # 
+  #
   # https://github.com/NixOS/nixpkgs/pull/256324#issuecomment-1749935979
-  # 
+  #
   # To summarize:
-  # 
+  #
   # - `prev` should only be used to access attributes which are going to be overriden.
   # - `final` should only be used to access `callPackage` to build new packages.
   # - Attribute names should be computable without relying on `final`.
   #   - Extensions should take arguments to build attribute names before relying on `final`.
-  # 
+  #
   # TODO(@connorbaker): A big problem with this is that the attribute names of the CUDA extension
   # depend on `cudaVersion`, as the version determines which packages are available.
   # In this first iteration, we're going to structure these extensions so they produce attribute sets
@@ -52,12 +52,12 @@
     # when linked with other C++ libraries.
     # E.g. for cudaPackages_11_8 we use gcc11 with gcc12's libstdc++
     # Cf. https://github.com/NixOS/nixpkgs/pull/218265 for context
-    backendStdenv = final.callPackage ../development/cuda-modules/backendStdenv.nix {};
+    backendStdenv = final.callPackage ../development/cuda-modules/backendStdenv {};
 
     # Loose packages
     cudatoolkit = final.callPackage ../development/cuda-modules/cudatoolkit {};
     saxpy = final.callPackage ../development/cuda-modules/saxpy {};
-    
+
     # TODO(@connorbaker): These don't rely on cudaVersion defined in `cudaPackagesAttrs`.
     # Will overrides work?
     cudaMajorVersion = versions.major cudaVersion;
@@ -69,11 +69,11 @@
     nccl-tests = final.callPackage ../development/cuda-modules/nccl-tests {};
   });
 
-  
+
   # NOTE(@connorbaker):
   # Assume we refactored ../development/cuda-modules/setup-hooks/extension.nix so that, instead of
   #   final: _:
-  # it took 
+  # it took
   #   {callPackage}:
   # as an argument. Then, if we wanted to merge the setup-hooks packages with cudaPackages, we could do this:
   #   // (builtins.import ../development/cuda-modules/setup-hooks {inherit (final) callPackage; })

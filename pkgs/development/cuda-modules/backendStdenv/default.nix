@@ -14,7 +14,11 @@
   # The target platform of buildPackages.gcc is our host platform, so its
   # .lib output should be the libstdc++ we want to be writing in the runpaths
   # Cf. https://github.com/NixOS/nixpkgs/pull/225661#discussion_r1164564576
-  nixpkgsCompatibleLibstdcxx = buildPackages.gcc.cc.lib;
+  nixpkgsCompatibleLibstdcxx = buildPackages.gcc.cc.lib.overrideAttrs (oldAttrs: {
+    patches = (oldAttrs.patches or []) ++ [
+      ./dont-use-arm-intrinsics-with-nvcc.patch
+    ];
+  });
   nvccCompatibleCC = buildPackages."gcc${gccMajorVersion}".cc;
 
   cc =
