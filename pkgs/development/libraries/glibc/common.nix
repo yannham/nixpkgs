@@ -96,6 +96,19 @@ stdenv.mkDerivation ({
          & https://github.com/NixOS/nixpkgs/pull/188492#issuecomment-1233802991
       */
       ./reenable_DT_HASH.patch
+
+      /*
+        NVCC (CUDA compiler) doesn't support ARM intrinsics for the moment
+        (See https://forums.developer.nvidia.com/t/nvcc-fails-to-build-with-arm-neon-instructions-cpp-vs-cu/248355/2)
+
+        Since 2.38, GLIBC unconditionally ships with ARM intrinsics that are
+        included as part of math.h. This basically breaks the compilation of
+        most CUDA-enabled packages on ARM.
+
+        This patch simply adds an additional guard to not include intrinsics
+        when compiling with
+      */
+      ./dont-use-intrinsics-with-nvcc-aarch64.patch
     ]
     ++ lib.optional stdenv.hostPlatform.isMusl ./fix-rpc-types-musl-conflicts.patch
     ++ lib.optional stdenv.buildPlatform.isDarwin ./darwin-cross-build.patch;
