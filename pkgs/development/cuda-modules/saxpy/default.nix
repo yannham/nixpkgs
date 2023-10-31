@@ -8,6 +8,7 @@
 , lib
 , libcublas
 , setupCudaHook
+, cudaSupport ? true
 , stdenv
 }:
 
