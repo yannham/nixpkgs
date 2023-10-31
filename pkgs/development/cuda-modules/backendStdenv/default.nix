@@ -23,9 +23,9 @@
       libc_dev = gcc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
         patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
       });
-      cc_libc_dev = gcc.cc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
-        patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
-      });
+      # cc_libc_dev = gcc.cc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
+      #   patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
+      # });
     in
     (gcc.override {
       inherit libc;
