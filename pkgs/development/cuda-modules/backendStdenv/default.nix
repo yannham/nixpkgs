@@ -20,9 +20,9 @@
       libc = gcc.libc.overrideAttrs ({ patches ? [ ], ...}: {
         patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
       });
-      libc_dev = gcc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
-        patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
-      });
+      # libc_dev = gcc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
+      #   patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
+      # });
       # cc_libc_dev = gcc.cc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
       #   patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
       # });
@@ -36,7 +36,7 @@
   cc =
     wrapCCWith
     {
-      inherit (nvccCompatibleCC) libc libc_dev cc bintools;
+      inherit (nvccCompatibleCC) libc cc bintools;
 
       # This option is for clang's libcxx, but we (ab)use it for gcc's libstdc++.
       # Note that libstdc++ maintains forward-compatibility: if we load a newer
