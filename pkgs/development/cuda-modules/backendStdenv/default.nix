@@ -14,17 +14,30 @@
   # The target platform of buildPackages.gcc is our host platform, so its
   # .lib output should be the libstdc++ we want to be writing in the runpaths
   # Cf. https://github.com/NixOS/nixpkgs/pull/225661#discussion_r1164564576
-  nixpkgsCompatibleLibstdcxx = buildPackages.gcc.cc.lib.overrideAttrs (oldAttrs: {
-    patches = (oldAttrs.patches or []) ++ [
-      ./dont-use-arm-intrinsics-with-nvcc.patch
-    ];
-  });
-  nvccCompatibleCC = buildPackages."gcc${gccMajorVersion}".cc;
+  nixpkgsCompatibleLibstdcxx = buildPackages.gcc.cc.lib;
+  nvccCompatibleCC = let
+      gcc = buildPackages."gcc${gccMajorVersion}";
+      libc = gcc.libc.overrideAttrs ({ patches ? [ ], ...}: {
+        patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
+      });
+      libc_dev = gcc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
+        patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
+      });
+      cc_libc_dev = gcc.cc.libc_dev.overrideAttrs ({ patches ? [ ], ...}: {
+        patches = patches ++ [ ./dont-use-arm-intrinsics-with-nvcc.patch ];
+      });
+    in
+    (gcc.override {
+      inherit libc;
+      inherit libc_dev;
+      bintools = gcc.bintools.override { inherit libc; };
+      cc = gcc.cc.override { libc_dev = cc_libc_dev; };
+    });
 
   cc =
     wrapCCWith
     {
-      cc = nvccCompatibleCC;
+      inherit (nvccCompatibleCC) libc libc_dev cc bintools;
 
       # This option is for clang's libcxx, but we (ab)use it for gcc's libstdc++.
       # Note that libstdc++ maintains forward-compatibility: if we load a newer
