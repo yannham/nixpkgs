@@ -11,6 +11,17 @@
 , stdenv
 }:
 
+let
+  # TODO: document this sh**
+  cmakeWrapped =
+    if cudaSupport then
+      cmake.override {
+        stdenv = cudaPackages.backendStdenv;
+      }
+    else
+      cmake;
+in
+
 backendStdenv.mkDerivation {
   pname = "saxpy";
   version = "unstable-2023-07-11";
@@ -23,7 +34,7 @@ backendStdenv.mkDerivation {
     cuda_cccl
   ];
   nativeBuildInputs = [
-    cmake
+    cmakeWrapped
 
     # NOTE: this needs to be pkgs.buildPackages.cudaPackages_XX_Y.cuda_nvcc for
     # cross-compilation to work. This should work automatically once we move to
