@@ -31,7 +31,7 @@
       inherit libc;
       inherit libc_dev;
       bintools = gcc.bintools.override { inherit libc; };
-      cc = gcc.cc.override { libc_dev = cc_libc_dev; };
+      # cc = gcc.cc.override { libc_dev = cc_libc_dev; };
     });
 
   cc =
