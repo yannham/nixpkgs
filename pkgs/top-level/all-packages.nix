@@ -7311,6 +7311,7 @@ with pkgs;
   cudaPackages_12_0 = recurseIntoAttrs (callPackage ./cuda-packages.nix { cudaVersion = "12.0"; });
   cudaPackages_12_1 = recurseIntoAttrs (callPackage ./cuda-packages.nix { cudaVersion = "12.1"; });
   cudaPackages_12_2 = recurseIntoAttrs (callPackage ./cuda-packages.nix { cudaVersion = "12.2"; });
+  cudaPackages_12_3 = recurseIntoAttrs (callPackage ./cuda-packages.nix { cudaVersion = "12.3"; });
   cudaPackages_12 = cudaPackages_12_0;
 
   # TODO: try upgrading once there is a cuDNN release supporting CUDA 12. No
