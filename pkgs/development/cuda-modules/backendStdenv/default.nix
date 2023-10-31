@@ -30,7 +30,6 @@
     (gcc.override {
       inherit libc;
       bintools = gcc.bintools.override { inherit libc; };
-      cc = gcc.cc.override { inherit libc; };
     });
 
   cc =
