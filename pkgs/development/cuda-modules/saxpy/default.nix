@@ -8,19 +8,14 @@
 , lib
 , libcublas
 , setupCudaHook
-, cudaSupport ? true
 , stdenv
 }:
 
 let
   # TODO: document this sh**
-  cmakeWrapped =
-    if cudaSupport then
-      cmake.override {
-        stdenv = cudaPackages.backendStdenv;
-      }
-    else
-      cmake;
+  cmakeWrapped = cmake.override {
+    stdenv = backendStdenv;
+  };
 in
 
 backendStdenv.mkDerivation {
