@@ -1,5 +1,9 @@
 args@{ callPackage
 , lib
+, stdenvAdapters
+, cudaPackages
+, cudaSupport ? true
+, cmake
 , ...
 }:
 
@@ -15,10 +19,20 @@ let
 
   computeName = version: "magma_${strings.replaceStrings [ "." ] [ "_" ] version}";
 
+  # TODO: document this sh**
+  cmakeWrapped =
+    if cudaSupport then
+      cmake.override {
+        stdenv = cudaPackages.backendStdenv;
+      }
+    else
+      cmake;
+
   # buildMagmaPackage :: Release -> Derivation
   buildMagmaPackage = magmaRelease: callPackage ./generic.nix (
     (builtins.removeAttrs args [ "callPackage" ]) // {
       inherit magmaRelease;
+      cmake = cmakeWrapped;
     }
   );
 
