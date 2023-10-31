@@ -35,7 +35,6 @@ let
   inherit (lib) lists strings trivial;
   inherit (cudaPackages) backendStdenv cudaFlags cudaVersion;
   inherit (magmaRelease) version hash supportedGpuTargets;
-  cmakeCudaCompatible = cmake.override { stdenv =  ;};
 
   # NOTE: The lists.subtractLists function is perhaps a bit unintuitive. It subtracts the elements
   #   of the first list *from* the second list. That means:
@@ -99,7 +98,6 @@ stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [
-    cmakeCudaCompatible
     ninja
     gfortran
   ] ++ lists.optionals cudaSupport [
@@ -140,7 +138,8 @@ stdenv.mkDerivation {
     "-DMIN_ARCH=${minArch}" # Disarms magma's asserts
     "-DCMAKE_C_COMPILER=${backendStdenv.cc}/bin/cc"
     "-DCMAKE_CXX_COMPILER=${backendStdenv.cc}/bin/c++"
-    "-DCMAKE_INCLUDE_PATH=${backendStdenv.gcc.libc_dev}/include"
+    "-DCMAKE_INCLUDE_PATH=${backendStdenv.gcc.libc}/lib"
+    "-DCMAKE_LIBRARY_PATH=${backendStdenv.gcc.libc.dev}/include"
     "-DMAGMA_ENABLE_CUDA=ON"
   ] ++ lists.optionals rocmSupport [
     "-DCMAKE_C_COMPILER=${rocmPackages.clr}/bin/hipcc"
