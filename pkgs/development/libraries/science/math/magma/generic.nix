@@ -98,6 +98,7 @@ stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [
+    cmake
     ninja
     gfortran
   ] ++ lists.optionals cudaSupport [
