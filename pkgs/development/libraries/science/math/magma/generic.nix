@@ -138,8 +138,8 @@ stdenv.mkDerivation {
     "-DMIN_ARCH=${minArch}" # Disarms magma's asserts
     "-DCMAKE_C_COMPILER=${backendStdenv.cc}/bin/cc"
     "-DCMAKE_CXX_COMPILER=${backendStdenv.cc}/bin/c++"
-    "-DCMAKE_INCLUDE_PATH=${backendStdenv.gcc.libc}/lib"
-    "-DCMAKE_LIBRARY_PATH=${backendStdenv.gcc.libc.dev}/include"
+    "-DCMAKE_INCLUDE_PATH=${backendStdenv.cc.libc}/lib"
+    "-DCMAKE_LIBRARY_PATH=${backendStdenv.cc.libc.dev}/include"
     "-DMAGMA_ENABLE_CUDA=ON"
   ] ++ lists.optionals rocmSupport [
     "-DCMAKE_C_COMPILER=${rocmPackages.clr}/bin/hipcc"
