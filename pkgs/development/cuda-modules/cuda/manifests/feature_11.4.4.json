@@ -1,0 +1,2384 @@
+{
+  "cuda_cccl": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_cudart": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libOpenCL.so.1",
+        "libcudart.so.11.0"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcudart.so.11.0"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libOpenCL.so.1",
+        "libcudart.so.11.0"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_cuobjdump": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_cupti": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6",
+        "libutil.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": true,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libcupti.so.11.4",
+        "libnvperf_host.so",
+        "libnvperf_target.so",
+        "libpcsamplingutil.so"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": true,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libcupti.so.11.4",
+        "libnvperf_host.so",
+        "libnvperf_target.so",
+        "libpcsamplingutil.so"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libutil.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": true,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcupti.so.11.4",
+        "libnvperf_host.so",
+        "libnvperf_target.so",
+        "libpcsamplingutil.so"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": true,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_cuxxfilt": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_demo_suite": {
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_documentation": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_gdb": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_memcheck": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nsight": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvcc": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvdisasm": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvml_dev": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvprof": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_52"
+      ],
+      "dependencies": [
+        "cuda_cupti"
+      ],
+      "neededLibs": [
+        "libc.so.6",
+        "libcuda.so.1",
+        "libcupti.so.11.4",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libaccinj64.so.11.4",
+        "libcuinj64.so.11.4"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_52"
+      ],
+      "dependencies": [
+        "cuda_cupti"
+      ],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libcuda.so.1",
+        "libcupti.so.11.4",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libaccinj64.so.11.4",
+        "libcuinj64.so.11.4"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvprune": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvrtc": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvrtc-builtins.so.11.4",
+        "libnvrtc.so.11.2"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvrtc-builtins.so.11.4",
+        "libnvrtc.so.11.2"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvrtc-builtins.so.11.4",
+        "libnvrtc.so.11.2"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvtx": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvToolsExt.so.1"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvToolsExt.so.1"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvToolsExt.so.1"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_nvvp": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "cuda_sanitizer_api": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "fabricmanager": {
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": [
+        "libnvfm.so.1"
+      ]
+    }
+  },
+  "libcublas": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libcublas",
+        "libcublas"
+      ],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libnvblas.so.11"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libcublas",
+        "libcublas"
+      ],
+      "neededLibs": [
+        "libc.so.6",
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libnvblas.so.11"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libcublas",
+        "libcublas"
+      ],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libnvblas.so.11"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "libcufft": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_70",
+        "sm_80"
+      ],
+      "dependencies": [
+        "libcufft"
+      ],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libcufft.so.10",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcufft.so.10",
+        "libcufftw.so.10"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_80"
+      ],
+      "dependencies": [
+        "libcufft"
+      ],
+      "neededLibs": [
+        "libc.so.6",
+        "libcufft.so.10",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcufft.so.10",
+        "libcufftw.so.10"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_70",
+        "sm_80"
+      ],
+      "dependencies": [
+        "libcufft"
+      ],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libcufft.so.10",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcufft.so.10",
+        "libcufftw.so.10"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "libcufile": {
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [
+        "libcufile"
+      ],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libcufile.so.0",
+        "libgcc_s.so.1",
+        "libibverbs.so.1",
+        "libm.so.6",
+        "libmlx5.so.1",
+        "librdmacm.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": true,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcufile.so.0",
+        "libcufile_rdma.so.1"
+      ]
+    }
+  },
+  "libcurand": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcurand.so.10"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcurand.so.10"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcurand.so.10"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "libcusolver": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libcublas",
+        "libcublas"
+      ],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcusolver.so.11",
+        "libcusolverMg.so.11"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libcublas",
+        "libcublas"
+      ],
+      "neededLibs": [
+        "libc.so.6",
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcusolver.so.11",
+        "libcusolverMg.so.11"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libcublas",
+        "libcublas"
+      ],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libcublas.so.11",
+        "libcublasLt.so.11",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1",
+        "libstdc++.so.6"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcusolver.so.11",
+        "libcusolverMg.so.11"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "libcusparse": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcusparse.so.11"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcusparse.so.11"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libcusparse.so.11"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "libnpp": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libnpp"
+      ],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libnppc.so.11",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libnppc.so.11",
+        "libnppial.so.11",
+        "libnppicc.so.11",
+        "libnppidei.so.11",
+        "libnppif.so.11",
+        "libnppig.so.11",
+        "libnppim.so.11",
+        "libnppist.so.11",
+        "libnppisu.so.11",
+        "libnppitc.so.11",
+        "libnpps.so.11"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libnpp"
+      ],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libnppc.so.11",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libnppc.so.11",
+        "libnppial.so.11",
+        "libnppicc.so.11",
+        "libnppidei.so.11",
+        "libnppif.so.11",
+        "libnppig.so.11",
+        "libnppim.so.11",
+        "libnppist.so.11",
+        "libnppisu.so.11",
+        "libnppitc.so.11",
+        "libnpps.so.11"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [
+        "libnpp"
+      ],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libnppc.so.11",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libnppc.so.11",
+        "libnppial.so.11",
+        "libnppicc.so.11",
+        "libnppidei.so.11",
+        "libnppif.so.11",
+        "libnppig.so.11",
+        "libnppim.so.11",
+        "libnppist.so.11",
+        "libnppisu.so.11",
+        "libnppitc.so.11",
+        "libnpps.so.11"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "libnvjpeg": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "ld64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libnvjpeg.so.11"
+      ]
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libnvjpeg.so.11"
+      ]
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [
+        "sm_35",
+        "sm_37",
+        "sm_50",
+        "sm_52",
+        "sm_60",
+        "sm_61",
+        "sm_70",
+        "sm_75",
+        "sm_80",
+        "sm_86"
+      ],
+      "dependencies": [],
+      "neededLibs": [
+        "ld-linux-x86-64.so.2",
+        "libc.so.6",
+        "libdl.so.2",
+        "libgcc_s.so.1",
+        "libm.so.6",
+        "libpthread.so.0",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": true
+      },
+      "providedLibs": [
+        "libnvjpeg.so.11"
+      ]
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": true,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "nsight_compute": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "nsight_nvtx": {
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "nsight_systems": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "nsight_vse": {
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "nvidia_driver": {
+    "linux-ppc64le": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libm.so.6",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-sbsa": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libm.so.6",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    },
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [
+        "libc.so.6",
+        "libdl.so.2",
+        "libm.so.6",
+        "librt.so.1"
+      ],
+      "outputs": {
+        "hasBin": true,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": true,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "nvidia_fs": {
+    "linux-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  },
+  "visual_studio_integration": {
+    "windows-x86_64": {
+      "cudaArchitectures": [],
+      "dependencies": [],
+      "neededLibs": [],
+      "outputs": {
+        "hasBin": false,
+        "hasDev": false,
+        "hasDoc": false,
+        "hasLib": false,
+        "hasSample": false,
+        "hasStatic": false
+      },
+      "providedLibs": []
+    }
+  }
+}
