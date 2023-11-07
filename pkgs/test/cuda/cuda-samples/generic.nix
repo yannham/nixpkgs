@@ -7,11 +7,16 @@
 , fetchpatch
 , freeimage
 , glfw3
+, hash
 , lib
 , pkg-config
-, sha256
 }:
+let
+  inherit (lib) lists strings;
+in
 backendStdenv.mkDerivation (finalAttrs: {
+  strictDeps = true;
+
   pname = "cuda-samples";
   version = cudaVersion;
 
@@ -19,31 +24,33 @@ backendStdenv.mkDerivation (finalAttrs: {
     owner = "NVIDIA";
     repo = finalAttrs.pname;
     rev = "v${finalAttrs.version}";
-    inherit sha256;
+    inherit hash;
   };
 
   nativeBuildInputs = [
-    pkg-config
     autoAddOpenGLRunpathHook
-    glfw3
-    freeimage
+    pkg-config
   ]
   # CMake has to run as a native, build-time dependency for libNVVM samples.
-  ++ lib.lists.optionals (lib.strings.versionAtLeast finalAttrs.version "12.2") [
+  # However, it's not the primary build tool -- that's still make.
+  # As such, we disable CMake's build system.
+  ++ lists.optionals (strings.versionAtLeast finalAttrs.version "12.2") [
     cmake
   ];
 
-  # CMake is not the primary build tool -- that's still make.
-  # As such, we disable CMake's build system.
   dontUseCmakeConfigure = true;
 
-  buildInputs = [ cudatoolkit ];
+  buildInputs = [
+    cudatoolkit
+    freeimage
+    glfw3
+  ];
 
   # See https://github.com/NVIDIA/cuda-samples/issues/75.
   patches = lib.optionals (finalAttrs.version == "11.3") [
     (fetchpatch {
       url = "https://github.com/NVIDIA/cuda-samples/commit/5c3ec60faeb7a3c4ad9372c99114d7bb922fda8d.patch";
-      sha256 = "sha256-0XxdmNK9MPpHwv8+qECJTvXGlFxc+fIbta4ynYprfpU=";
+      hash = "sha256-0XxdmNK9MPpHwv8+qECJTvXGlFxc+fIbta4ynYprfpU=";
     })
   ];
 

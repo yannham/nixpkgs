@@ -1,9 +1,4 @@
-args@
-{ version
-, sha256
-, url ? ""
-, name ? ""
-, developerProgram ? false
+{ cudaVersion
 , runPatches ? []
 , autoPatchelfHook
 , autoAddOpenGLRunpathHook
@@ -31,7 +26,6 @@ args@
 , perl
 , python3 # FIXME: CUDAToolkit 10 may still need python27
 , pulseaudio
-, requireFile
 , setupCudaHook
 , stdenv
 , backendStdenv # E.g. gcc11Stdenv, set in extension.nix
@@ -50,28 +44,23 @@ args@
 , rsync
 }:
 
+let
+  # Version info for the classic cudatoolkit packages that contain everything that is in redist.
+  releases = builtins.import ./releases.nix;
+  release = releases.${cudaVersion};
+in
+
 backendStdenv.mkDerivation rec {
   pname = "cudatoolkit";
-  inherit version runPatches;
+  inherit (release) version;
+  inherit runPatches;
 
   dontPatchELF = true;
   dontStrip = true;
 
-  src =
-    if developerProgram then
-      requireFile {
-        message = ''
-          This nix expression requires that ${args.name} is already part of the store.
-          Register yourself to NVIDIA Accelerated Computing Developer Program, retrieve the CUDA toolkit
-          at https://developer.nvidia.com/cuda-toolkit, and run the following command in the download directory:
-          nix-prefetch-url file://\$PWD/${args.name}
-        '';
-        inherit (args) name sha256;
-      }
-    else
-      fetchurl {
-        inherit (args) url sha256;
-      };
+  src = fetchurl {
+    inherit (release) url sha256;
+  };
 
   outputs = [ "out" "lib" "doc" ];
 
@@ -335,8 +324,7 @@ backendStdenv.mkDerivation rec {
   # when we figure out how to get `cuda-gdb --version` to run correctly
   # when not using sandboxing.
   doInstallCheck = false;
-  postInstallCheck = let
-  in ''
+  postInstallCheck = ''
     # Smoke test binaries
     pushd $out/bin
     for f in *; do

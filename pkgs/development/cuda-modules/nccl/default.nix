@@ -7,15 +7,11 @@
 , cuda_cccl
 , cuda_cudart
 , cuda_nvcc
-, cudaFlags
+, flags
 , cudaVersion
 # passthru.updateScript
 , gitUpdater
 }:
-let
-  # Output looks like "-gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_86,code=compute_86"
-  gencode = lib.concatStringsSep " " cudaFlags.gencode;
-in
 backendStdenv.mkDerivation (finalAttrs: {
   pname = "nccl";
   version = "2.19.3-1";
@@ -27,6 +23,8 @@ backendStdenv.mkDerivation (finalAttrs: {
     hash = "sha256-59FlOKM5EB5Vkm4dZBRCkn+IgIcdQehE+FyZAdTCT/A=";
   };
 
+  strictDeps = true;
+
   outputs = [ "out" "dev" ];
 
   nativeBuildInputs = [
@@ -37,6 +35,7 @@ backendStdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
+    cuda_nvcc.dev # crt/host_config.h
     cuda_cudart
   ]
   # NOTE: CUDA versions in Nixpkgs only use a major and minor version. When we do comparisons
@@ -50,7 +49,7 @@ backendStdenv.mkDerivation (finalAttrs: {
   preConfigure = ''
     patchShebangs ./src/device/generate.py
     makeFlagsArray+=(
-      "NVCC_GENCODE=${gencode}"
+      "NVCC_GENCODE=${flags.gencodeString}"
     )
   '';
 

@@ -1,5 +1,8 @@
-{ lib, backendStdenv, fetchFromGitHub
-, cmake, addOpenGLRunpath
+{ lib
+, backendStdenv
+, fetchFromGitHub
+, cmake
+, addOpenGLRunpath
 , cudatoolkit
 , cutensor
 }:
@@ -29,7 +32,7 @@ let
         cuSPARSE, cuSOLVER, cuFFT, cuRAND, NPP and nvJPEG.
       '';
       license = lib.licenses.bsd3;
-      maintainers = with lib.maintainers; [ obsidian-systems-maintenance ];
+      maintainers = with lib.maintainers; [ obsidian-systems-maintenance ] ++ lib.teams.cuda.members;
     };
   };
 in
