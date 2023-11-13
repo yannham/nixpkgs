@@ -26,12 +26,28 @@ final: _: {
   autoAddOpenGLRunpathHook = final.callPackage ({
     addOpenGLRunpath,
     makeSetupHook,
+    cuda_compat ? null,
   }:
     makeSetupHook {
       name = "auto-add-opengl-runpath-hook";
-      propagatedBuildInputs = [
-        addOpenGLRunpath
-      ];
+      propagatedBuildInputs =
+        let
+          # If we are on a platform supporting cuda_compat, we simply always use
+          # it by default, as it allows to support a wider range of CUDA
+          # executable given a fixed CUDA driver version.
+          #
+          # To enable cuda_compat, we tweak the `addOpenGLRunpath`, which is
+          # already doing what we need (add the driver's path to the RUNPATH of
+          # binaries), such that it appends both `${cuda_compat}/compat` and the
+          # ordinary OpenGL driver path.
+          addOpenGLRunpath' =
+            addOpenGLRunpath.overrideAttrs (prevAttrs: {
+              driverLink =
+                (lib.optionalString (cuda_compat != null) "${cuda_compat}/compat:")
+                ++ prevAttrs.driverLink;
+            });
+        in
+        [ addOpenGLRunpath' ];
     }
     ./auto-add-opengl-runpath-hook.sh) {};
 }
