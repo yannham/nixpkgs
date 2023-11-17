@@ -11,6 +11,9 @@ final: _: {
   setupCudaHook = final.callPackage ({
     backendStdenv,
     makeSetupHook,
+    cuda_compat ? null,
+    flags,
+    lib,
   }:
     makeSetupHook {
       name = "setup-cuda-hook";
@@ -20,6 +23,9 @@ final: _: {
         # when building CMakeCUDACompilerId.cu
         ccFullPath = "${backendStdenv.cc}/bin/${backendStdenv.cc.targetPrefix}c++";
       };
+      propagatedBuildInputs = lib.optionals (flags.isJetsonBuild && cuda_compat != null) [
+        cuda_compat
+      ];
     }
     ./setup-cuda-hook.sh) {};
 
