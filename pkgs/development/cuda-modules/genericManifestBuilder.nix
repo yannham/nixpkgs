@@ -1,6 +1,7 @@
 {
   # General callPackage-supplied arguments
   autoAddOpenGLRunpathHook,
+  autoAddCudaCompatRunpathHook,
   autoPatchelfHook,
   backendStdenv,
   fetchurl,
@@ -102,6 +103,11 @@ in
       # Check e.g. with `patchelf --print-rpath path/to/my/binary
       autoAddOpenGLRunpathHook
       markForCudatoolkitRootHook
+    ] ++ lib.optionals (pname != "cuda_compat") [
+      # this hooks depend on cuda_compat and would cause infinite recursion if
+      # we would apply it to `cuda_compat` itself (beside the fact that it's
+      # probably not needed or very sensible)
+      autoAddCudaCompatRunpathHook
     ];
 
     buildInputs = [

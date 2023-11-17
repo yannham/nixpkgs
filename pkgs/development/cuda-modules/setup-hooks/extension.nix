@@ -34,4 +34,17 @@ final: _: {
       ];
     }
     ./auto-add-opengl-runpath-hook.sh) {};
+
+  autoAddCudaCompatRunpathHook = final.callPackage ({
+    makeSetupHook,
+    cuda_compat,
+  }:
+    makeSetupHook {
+      name = "auto-add-cuda-compat-runpath-hook";
+      substitutions = {
+        libcudaPath = "${cuda_compat}/compat/libcuda.so";
+      };
+    }
+    ./auto-add-cuda-compat-runpath.sh) {};
+
 }
