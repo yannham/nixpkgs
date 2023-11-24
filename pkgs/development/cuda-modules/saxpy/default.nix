@@ -9,6 +9,7 @@
 , libcublas
 , setupCudaHook
 , stdenv
+, breakpointHook
 }:
 
 backendStdenv.mkDerivation {
@@ -34,6 +35,7 @@ backendStdenv.mkDerivation {
     # directly:
     # setupCudaHook
     autoAddOpenGLRunpathHook
+    breakpointHook
   ];
 
   cmakeFlags = [
